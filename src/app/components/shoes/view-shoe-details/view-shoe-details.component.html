@@ -1,0 +1,31 @@
+<div class="details">
+    <div class="starter">
+        <h1>Shoe Details</h1>
+        <h2>Shoe Name : {{shoe.name| titlecase}}</h2>
+        
+        <h3>Shoe Category : {{shoe.category.name | titlecase}}</h3>
+        <h3>Cost : {{shoe.cost}}</h3>
+        <button mat-stroked-button (click)="addToCart()">Add to cart</button>
+        @if(clicked){
+            <div>
+            <form [formGroup]="quantForm" (ngSubmit)="onSubmit()"></form>    
+            <mat-form-field>
+                <mat-label>Quantity</mat-label>
+                <input matInput formControlName="quantity" type="number" [max]="shoe.inventory">
+            </mat-form-field>
+            <div>
+                <button mat-stroked-button (click)="addToCart()">Add to cart</button>
+            </div>
+            
+        </div>
+        }
+    </div>
+    @for(url of shoe.img_url;track url){
+    <div class="images">
+        <img [ngSrc]="url" width="400" height="200">
+    </div>
+    }
+    <h3>Description</h3>
+    <p>{{shoe.description}}</p>
+
+</div>

@@ -1,0 +1,65 @@
+<div class="shoeForm">
+    <form (ngSubmit)="onSubmit()" [formGroup]="shoeForm">
+        @if(mode === 'update'){
+            <div>
+            <mat-form-field>
+                <mat-label>Patient Id</mat-label>
+                <input matInput formControlName="id" [readonly]="true">
+            </mat-form-field>
+        </div>
+        }
+        <div>
+            <mat-form-field>
+                <mat-label>Name</mat-label>
+                <input matInput formControlName="name">
+            </mat-form-field>
+        </div>
+
+        <div>
+            <mat-form-field>
+                <mat-label>Category</mat-label>
+                <mat-select formControlName="category">
+                    @for (category of categories; track $index) {
+                    <mat-option [value]= "category.name">
+                        {{category.name}}
+                    </mat-option>
+                    }
+                </mat-select>
+            </mat-form-field>
+        </div>
+        <div>
+            <div formArrayName="img_url">
+                <mat-label>Image Url</mat-label>
+                @for(url of getUrlArray().controls;track url ; let i = $index){
+                    
+                        <input matInput [formControlName]="i">
+                        <div>
+                            <button mat-button type="button" (click)="removeUrl(i)">Remove</button>
+                        </div>
+                }    
+                <button mat-flat-button type="button" (click)="addUrl()">Add Url</button>   
+            </div>
+        </div>
+        <div>
+            <mat-form-field>
+                <mat-label>Description</mat-label>
+                <input matInput formControlName="description">
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field>
+                <mat-label>Inventory</mat-label>
+                <input matInput formControlName="inventory" type="number">
+            </mat-form-field>
+        </div>
+         <div>
+            <mat-form-field>
+                <mat-label>Cost</mat-label>
+                <input matInput formControlName="cost">
+            </mat-form-field>
+        </div>
+        <div>
+            <button mat-flat-button type="submit">Submit</button>
+        </div>
+    </form>
+</div>

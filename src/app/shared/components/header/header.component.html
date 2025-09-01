@@ -1,0 +1,22 @@
+<mat-toolbar>
+    <span routerLink="/home">BuyMeShoes!</span>
+    @if(isLoggedIn){
+    <span class="example-spacer"></span>
+    <button routerLink="/shoelist" mat-button class="example-icon favorite-icon"
+        aria-label="Example icon-button with heart icon">
+        Product List
+    </button>
+    <button routerLink="/checkout" routerLinkActive="router-link-active" mat-button class="example-icon"
+        aria-label="Example icon-button with share icon">
+        Check Out
+    </button>
+    <button routerLink="/orders" mat-button class="example-icon" aria-label="Example icon-button with share icon">
+        Previous Orders
+    </button>
+    <button  mat-button class="example-icon" aria-label="Example icon-button with share icon" (click)="onLogout()">
+        Logout
+    </button>
+    }
+    
+
+</mat-toolbar>

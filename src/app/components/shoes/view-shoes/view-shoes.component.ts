@@ -9,14 +9,15 @@ import { ShoeModel } from '../../../core/models/product/product.model';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { MatRadioChange, MatRadioModule } from '@angular/material/radio';
+import {  MatRadioModule } from '@angular/material/radio';
 import { ShoeCategory } from '../../../core/models/product-category/product.category.model';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectChange, MatSelectModule } from '@angular/material/select';
 
 @Component({
   selector: 'app-view-shoes',
-  imports: [MatRadioModule,MatTableModule,MatButtonModule,MatInputModule, TitleCasePipe, MatIconModule,MatSortModule,MatFormFieldModule,FormsModule],
+  imports: [MatRadioModule,MatTableModule,MatButtonModule,MatInputModule, TitleCasePipe, MatIconModule,MatSortModule,MatSelectModule,MatFormFieldModule,FormsModule],
   templateUrl: './view-shoes.component.html',
   styleUrl: './view-shoes.component.scss'
 })
@@ -24,6 +25,7 @@ export class ViewShoesComponent implements OnInit,AfterViewInit {
 
   public shoes: ShoeModel[]
   public categories : ShoeCategory[]
+  public displayDropDown : DropDown[]
   public dataSource: MatTableDataSource<ShoeModel>
   public displayedColumns: string[] = ['name', 'category', 'inventory', 'cost', 'details', 'actions']
   public search : string= ''
@@ -36,6 +38,7 @@ export class ViewShoesComponent implements OnInit,AfterViewInit {
     this.shoes = this.productService.getShoes()
     this.dataSource = new MatTableDataSource(this.shoes)  
     this.categories = this.categoriesService.getCategories()
+    this.displayDropDown = [...this.categories,{id : 4, name : "None"}]
     this.dataSource.filterPredicate = (data : ShoeModel, filter : string) =>{
       if(filter === '4'){
         return true
@@ -78,7 +81,7 @@ export class ViewShoesComponent implements OnInit,AfterViewInit {
     this.router.navigate(['/shoe/add'])
   }
 
-  onSearch(){
+  public onSearch(){
      if (this.search !== '' && this.search !== null) {
       this.dataSource.filter = this.search.toLowerCase().trim()
     }
@@ -87,7 +90,15 @@ export class ViewShoesComponent implements OnInit,AfterViewInit {
     }
   }
 
-  public filterApplied(event: MatRadioChange) {
-    this.dataSource.filter = event.value.trim()
+  public selectChange(event : MatSelectChange){
+    let eventString = event.value.toString().trim()
+    this.dataSource.filter = eventString
+    console.log(eventString);
+    
   }
+}
+
+interface DropDown{
+  id : number
+  name : string
 }

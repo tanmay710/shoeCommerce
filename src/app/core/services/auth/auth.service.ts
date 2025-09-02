@@ -22,6 +22,7 @@ export class AuthService {
 
   public logout(){
     localStorage.removeItem('userLoggedIn')
+    localStorage.removeItem('cart')
     this.isLoggedIn.next(false)
   }
 

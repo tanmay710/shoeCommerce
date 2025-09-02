@@ -1,0 +1,30 @@
+<div class="orders">
+    <mat-card class="example-card" appearance="outlined">
+        <mat-card-header>
+            <div mat-card-avatar class="example-header-image"></div>
+            <mat-card-title>Order ID : {{order.orderId}}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <p>
+               Ordered Shoes Overview: @for(item of order.cart.items;track $index){
+                <p>{{$index + 1}} : {{item.name | titlecase}}<br>
+                    <span>
+                        Shoe price : {{item.cost}}<br>
+                    </span>
+                    <span>
+                        Quantity Ordered : {{item.quantity}}<br>
+                    </span>
+                    <span>
+                        <button mat-button type="button" (click)="onClick(item.productId)">More details of shoe</button>
+                    </span> </p><br>
+               }
+               Shoes Ordered : {{order.cart.items.length}}<br>   
+               Total Cost : {{order.cart.totalAmount}}<br>
+               Order Date : {{order.orderDate}}
+            </p>
+        </mat-card-content>
+
+       
+    </mat-card>
+</div>

@@ -8,13 +8,15 @@
     <input matInput placeholder="Search by type" [(ngModel)]="search" (input)="onSearch()">
 </mat-form-field>
 <div>
-    Filter
-    <mat-radio-group (change)="filterApplied($event)">
-        <mat-radio-button value="1">Sport</mat-radio-button>
-        <mat-radio-button value="2">Formal</mat-radio-button>
-        <mat-radio-button value="3">Casual</mat-radio-button>
-        <mat-radio-button value="4">None</mat-radio-button>
-    </mat-radio-group>
+    <mat-form-field>
+        <mat-label>Filter by category</mat-label>
+        <mat-select (selectionChange)="selectChange($event)">
+            @for (category of displayDropDown; track category) {
+            <mat-option [value]="category.id">{{category.name | titlecase }}</mat-option>
+            }
+        </mat-select>
+    </mat-form-field>
+
 
 </div>
 <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>

@@ -1,0 +1,30 @@
+@if(currentUserOrders.length !== 0){
+@for(order of currentUserOrders; track order){
+<div class="orders">
+    <mat-card class="example-card" appearance="outlined">
+        <mat-card-header>
+            <div mat-card-avatar class="example-header-image"></div>
+            <mat-card-title>Order ID : {{order.orderId}}</mat-card-title>
+        </mat-card-header>
+
+        <mat-card-content>
+            <p>
+               Products Ordered : @for(item of order.cart.items;track $index){
+                <p>{{$index + 1}} : {{item.name | titlecase}}</p><br>
+               }<br>
+               Order Date : {{order.orderDate}}
+            </p>
+        </mat-card-content>
+
+        <mat-card-actions>
+            <button mat-button type="button" (click)="onClick(order.orderId)">More details</button>
+        </mat-card-actions>
+    </mat-card>
+</div>
+}
+}
+@else {
+    <p>You have no history of orders,
+        Lets change that by <strong><i><a (click)="toBuy()">Clicking here</a></i></strong>
+    </p>
+}

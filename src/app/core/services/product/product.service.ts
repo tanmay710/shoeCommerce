@@ -106,6 +106,7 @@ export class ProductService {
     let updateShoeIndex = shoes.findIndex((p)=> p.id === shoe.id)
     if(updateShoeIndex !== -1){
       shoes[updateShoeIndex] ={...shoe}
+      localStorage.setItem('shoes',JSON.stringify(shoes))
     }
   }
 

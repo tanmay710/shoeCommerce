@@ -1,0 +1,33 @@
+<div class="cart">
+    <h2 class="title">Cart details</h2>
+    <div>
+        @if(userCart){
+            <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>Shoe Name </th>
+                <td mat-cell *matCellDef="let shoe"> {{shoe.name | titlecase }} </td>
+            </ng-container>
+            <ng-container matColumnDef="quantity">
+                <th mat-header-cell *matHeaderCellDef>Shoe Name </th>
+                <td mat-cell *matCellDef="let shoe"> {{shoe.quantity}} </td>
+            </ng-container>
+            <ng-container matColumnDef="cost">
+                <th mat-header-cell *matHeaderCellDef>Cost per Piece </th>
+                <td mat-cell *matCellDef="let shoe"> {{shoe.cost}} </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <div class="cost">
+            <h3>Total cost :{{userCart.totalAmount}}</h3>
+        </div>
+        <div>
+            <button mat-flat-button type="button" (click)="onConfirm()">Confirm Order</button>
+        </div>
+        }
+        @else {
+            <h3>Your cart is empty for now</h3>
+            <button mat-button type="button" (click)="onClick()">Buy Shoes</button>
+        }
+    </div>
+</div>

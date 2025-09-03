@@ -1,0 +1,22 @@
+<div class="reviewForm">
+    <h2 mat-dialog-title>Shoe Review</h2>
+    <mat-dialog-content>
+        <form [formGroup]="reviewForm" (ngSubmit)="onSubmit()">
+        <div>
+            <ngx-star-rating formControlName="rating" [id]="'rating'"></ngx-star-rating>
+        </div>
+        <div>
+            <mat-form-field>
+                <mat-label>Comment</mat-label>
+                <input matInput formControlName="comment">
+            </mat-form-field>
+        </div>
+        <div>
+            <button mat-flat-button type="submit">Submit</button>
+            <button mat-stroked-button type="button" (click)="onClose()">Close</button>
+        </div>
+    </form>
+    </mat-dialog-content>
+    
+</div>
+<!-- <star-rating [starType]="'svg'" [rating]="2.63"></star-rating> -->

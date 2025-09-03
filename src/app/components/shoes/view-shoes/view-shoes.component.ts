@@ -14,10 +14,11 @@ import { ShoeCategory } from '../../../core/models/product-category/product.cate
 import { CategoriesService } from '../../../core/services/categories/categories.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectChange, MatSelectModule } from '@angular/material/select';
+import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 
 @Component({
   selector: 'app-view-shoes',
-  imports: [MatRadioModule,MatTableModule,MatButtonModule,MatInputModule, TitleCasePipe, MatIconModule,MatSortModule,MatSelectModule,MatFormFieldModule,FormsModule],
+  imports: [MatRadioModule,MatTableModule,MatButtonModule,MatInputModule, TitleCasePipe,MatPaginatorModule, MatIconModule,MatSortModule,MatSelectModule,MatFormFieldModule,FormsModule],
   templateUrl: './view-shoes.component.html',
   styleUrl: './view-shoes.component.scss'
 })
@@ -31,7 +32,8 @@ export class ViewShoesComponent implements OnInit,AfterViewInit {
   public search : string= ''
   selectedCategory: string = 'all';
   @ViewChild(MatSort) sort!: MatSort;
-
+  @ViewChild(MatPaginator) paginator: MatPaginator;
+  
   constructor(private productService: ProductService, private router: Router,private categoriesService : CategoriesService) { }
 
   ngOnInit(): void {
@@ -58,6 +60,7 @@ export class ViewShoesComponent implements OnInit,AfterViewInit {
 
   ngAfterViewInit(): void {
     this.dataSource.sort = this.sort
+    this.dataSource.paginator = this.paginator;
   }
 
   public onDetails(shoe: ShoeModel) {

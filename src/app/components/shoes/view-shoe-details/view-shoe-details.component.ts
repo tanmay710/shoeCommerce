@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ShoeModel } from '../../../core/models/product/product.model';
 import { ProductService } from '../../../core/services/product/product.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NgOptimizedImage, TitleCasePipe } from '@angular/common';
+import { DatePipe, NgOptimizedImage, TitleCasePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from '@angular/material/input';
@@ -11,11 +11,21 @@ import { CartItem } from '../../../core/models/cart/cart.item.model';
 import { Cart } from '../../../core/models/cart/cart.model';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { MatCardModule } from '@angular/material/card';
-
+import { MatTabsModule } from '@angular/material/tabs';
+import { ReviewModel } from '../../../core/models/review/review';
+import { ReviewService } from '../../../core/services/review/review.service';
+import { UserModel } from '../../../core/models/user/user.model';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { ReviewDialogComponent } from '../../review-dialog/review-dialog.component';
+import { NgxStarRatingModule } from 'ngx-star-rating';
+ import { NgxStarsModule } from 'ngx-stars';
 @Component({
   selector: 'app-view-shoe-details',
-  imports: [TitleCasePipe, NgOptimizedImage, MatButtonModule,
-    MatFormFieldModule, MatInputModule, FormsModule, ReactiveFormsModule,MatCardModule],
+  imports: [TitleCasePipe, MatButtonModule,
+    MatFormFieldModule, MatInputModule, FormsModule,
+    ReactiveFormsModule, MatCardModule, MatTabsModule, DatePipe,
+    MatIconModule,NgxStarsModule],
   templateUrl: './view-shoe-details.component.html',
   styleUrl: './view-shoe-details.component.scss'
 })
@@ -24,12 +34,17 @@ export class ViewShoeDetailsComponent implements OnInit {
   public shoeId: number
   public clicked: boolean = false
   public quantForm: FormGroup
-  public isDisabled : boolean = true
-  public submitted : boolean = false
-  public categoryShoes : ShoeModel[]
-  public categoryId : number
+  public isDisabled: boolean = true
+  public submitted: boolean = false
+  public categoryShoes: ShoeModel[]
+  public categoryId: number
+  public shoeReviews: ReviewModel[]
+  public userId: number
+
   constructor(private productService: ProductService, private route: ActivatedRoute,
-    private fb: FormBuilder, private cartService: CartService, private router: Router) {
+    private fb: FormBuilder, private cartService: CartService, private router: Router,
+    private reviewService: ReviewService, private dialog: MatDialog
+  ) {
     this.quantForm = this.fb.group({
       quantity: ['', Validators.required]
     })
@@ -37,21 +52,22 @@ export class ViewShoeDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.shoeId = +this.route.snapshot.paramMap.get('id')
-    const shoes:ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
+    const shoes: ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
     this.shoe = shoes.find((p) => p.id === this.shoeId)
     this.categoryId = this.shoe.category.id
-    this.categoryShoes = shoes.filter((p)=> p.category.id === this.categoryId && p.id !== this.shoeId)
-    this.route.params.subscribe(params =>{
-      const newId = params['id']
-    
-    })
+    this.categoryShoes = shoes.filter((p) => p.category.id === this.categoryId && p.id !== this.shoeId)
+    let allReviews = this.reviewService.getAllReviews()
+    let thisShoeReviews = allReviews.filter((p) => p.productId === this.shoeId)
+    this.shoeReviews = thisShoeReviews
+    let currUser: UserModel = JSON.parse(localStorage.getItem('userLoggedIn'))
+    this.userId = currUser.id
   }
 
   public addToCart() {
-    if(this.shoe.inventory !== 0){
+    if (this.shoe.inventory !== 0) {
       this.clicked = true
     }
-    else{
+    else {
       alert("The product is currently out of stock, please select different product")
     }
   }
@@ -133,20 +149,42 @@ export class ViewShoeDetailsComponent implements OnInit {
       }
     }
   }
-  
-  public toBuy(){
+
+  public toBuy() {
     this.router.navigate(['/shoelist'])
   }
 
-  public onClick(id : number){
-    // console.log(id);
-    // this.router.navigate([`/shoe-details`,id])
+  public onClick(id: number) {
     this.reloadComponent(id)
   }
 
-  public reloadComponent(id : number){
-    this.router.navigateByUrl('/',{skipLocationChange : true}).then(()=>{
+  public reloadComponent(id: number) {
+    this.router.navigateByUrl('/', { skipLocationChange: true }).then(() => {
       this.router.navigate([`/shoe-details/${id}`])
     })
+  }
+
+  public onClose() {
+    this.clicked = false
+  }
+
+  public onEdit(review: ReviewModel) {
+    const dialogref = this.dialog.open(ReviewDialogComponent, { data: { productId: this.shoeId, mode: 'update', existingReview: review } })
+    dialogref.afterClosed().subscribe(result => {
+      let allReviews = this.reviewService.getAllReviews()
+      let thisShoeReviews = allReviews.filter((p) => p.productId === this.shoeId)
+      this.shoeReviews = thisShoeReviews
+    })
+
+  }
+
+  public onDelete(review: ReviewModel) {
+    const confirmation = confirm("Are you sure you want to delete this review")
+    if (confirmation) {
+      this.reviewService.deleteReview(review)
+      let allReviews = this.reviewService.getAllReviews()
+      let thisShoeReviews = allReviews.filter((p) => p.productId === this.shoeId)
+      this.shoeReviews = thisShoeReviews
+    }
   }
 }

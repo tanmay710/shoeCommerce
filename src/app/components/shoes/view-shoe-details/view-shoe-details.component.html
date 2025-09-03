@@ -1,57 +1,109 @@
-<div class="details">
-    <div class="starter">
-        <h1>Shoe Details</h1>
-        <h2>Shoe Name : {{shoe.name| titlecase}}</h2>
+<h1>Shoe Details</h1>
 
+<div class="details">
+    <div class="images">
+        @for(url of shoe.img_url;track $index){
+        <img [src]="url">
+        }
+    </div>
+    <div class="info">
+        <h2>Shoe Name : {{shoe.name| titlecase}}</h2>
         <h3>Shoe Category : {{shoe.category.name | titlecase}}</h3>
         <h3>Cost : {{shoe.cost}}</h3>
+        <p><strong>Description: </strong>{{shoe.description}}</p>
         <button mat-stroked-button (click)="addToCart()">Add to cart</button>
         @if(clicked){
         <div>
             <form [formGroup]="quantForm" (ngSubmit)="onSubmit()">
 
-                <mat-form-field>
+                <mat-form-field class="quantity">
                     <mat-label>Quantity</mat-label>
-                    <input matInput formControlName="quantity" type="number">
+                    <input matInput formControlName="quantity" type="number" [min]="1">
                 </mat-form-field>
                 <div>
                     <button mat-flat-button type="submit">Confirm</button>
+                    <button mat-flat-button type="button" class="cancelbutton" (click)="onClose()">Cancel</button>
                 </div>
             </form>
         </div>
         }
     </div>
-    @for(url of shoe.img_url;track url){
-    <div class="images">
-        <img [ngSrc]="url" width="400" height="200">
-    </div>
-    }
-    <h3>Description</h3>
-    <p>{{shoe.description}}</p> 
 
-</div><br>
-<div class="recommendations">
-    @if(categoryShoes.length !== 0){
-    <div>
-        <h3>Similar products</h3>
-        @for(shoe of categoryShoes; track shoe){
-        <mat-card class="example-card" appearance="outlined">
-            <mat-card-header>
-                <div mat-card-avatar class="example-header-image"></div>
-                <mat-card-title>Name : {{shoe.name}}</mat-card-title>
-            </mat-card-header>
-        
-        <mat-card-content>
-            <p>
-               Cost : {{shoe.cost}}<br>  
-            </p>
-        </mat-card-content>
-        <mat-card-actions>
-            <button mat-button type="button" (click)="onClick(shoe.id)">More details</button>
-        </mat-card-actions>
-        </mat-card>
-        }
 
-    </div>
-    }
+
+</div>
+
+<div class="tabs">
+    <mat-tab-group>
+        <div class="similar-products">
+            <mat-tab label="Similar Products">
+                <div class="recommendations">
+                    @if(categoryShoes.length !== 0){
+                    <div>
+                        @for(shoe of categoryShoes; track shoe){
+                        <mat-card class="similar-products" appearance="outlined">
+                            <mat-card-header>
+                                <mat-card-title> {{shoe.name | titlecase}}</mat-card-title>
+                            </mat-card-header>
+
+                            <mat-card-content>
+                                <p>
+                                    <strong>Cost</strong> : {{shoe.cost}}<br>
+                                </p>
+                                <p>
+                                    <strong>Description</strong> : {{shoe.description}}
+                                </p>
+                            </mat-card-content>
+                            <mat-card-actions>
+                                <button mat-button type="button" (click)="onClick(shoe.id)">More details</button>
+                            </mat-card-actions>
+                        </mat-card>
+                        }
+
+                    </div>
+                    }
+                    @else {
+                    <h2>No similar products</h2>
+                    }
+                </div>
+            </mat-tab>
+        </div>
+
+        <mat-tab label="Reviews">
+            <div class="review">
+                @if(shoeReviews.length !== 0){
+                @for(review of shoeReviews;track review){
+                <mat-card class="example-card" appearance="outlined">
+                    <mat-card-header>
+                        <mat-card-title>Review by : {{review.userName}}</mat-card-title>
+                        <mat-card-subtitle>Reviewed On : {{review.date | date:'mediumDate'}}</mat-card-subtitle>
+                    </mat-card-header>
+                    <mat-card-content>
+                        <p>
+                            Rating : <strong><ngx-stars [maxStars]="review.rating" [initialStars]="review.rating"
+                                    [readonly]="true" [size]="2" color="gold"></ngx-stars></strong> <br>
+                            Comment : {{review.comment}}
+
+                        </p>
+                    </mat-card-content>
+                    @if(review.userId === userId){
+                    <mat-card-actions>
+                        <button mat-flat-button type="button"
+                            (click)="onEdit(review)"><mat-icon>edit</mat-icon></button>
+                        <button mat-fab class="actionicon" (click)="onDelete(review)">
+                            <mat-icon>delete</mat-icon>
+                        </button>
+                    </mat-card-actions>
+                    }
+
+                </mat-card>
+                }
+                }
+                @else {
+                <h3>No reviews yet on this product</h3>
+                }
+            </div>
+        </mat-tab>
+
+    </mat-tab-group>
 </div>

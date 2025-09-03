@@ -14,11 +14,12 @@ export const routes: Routes = [
     {path : '', component : ViewShoesComponent,canActivate :[authGuard]},
     {path :'signup',component : SignupComponent},
     {path : 'login',component : LoginComponent},
-    {path : 'shoelist',component : ViewShoesComponent},
-    {path: 'shoe-details/:id',component : ViewShoeDetailsComponent},
-    {path: 'shoe/add',component : ShoeAddUpdateFormComponent},
-    {path : 'shoe/update/:id',component : ShoeAddUpdateFormComponent},
-    {path: 'checkout',component : CartComponent},
-    {path : 'orders',component : OrdersComponent},
-    {path: 'orders/detail/:id',component : OrderDetailsComponent}
+    {path : 'shoelist',component : ViewShoesComponent,canActivate :[authGuard]},
+    {path: 'shoe-details/:id',component : ViewShoeDetailsComponent,canActivate :[authGuard]},
+    {path: 'shoe/add',component : ShoeAddUpdateFormComponent,canActivate :[authGuard]},
+    {path : 'shoe/update/:id',component : ShoeAddUpdateFormComponent,canActivate :[authGuard]},
+    {path: 'checkout',component : CartComponent,canActivate :[authGuard]},
+    {path : 'orders',component : OrdersComponent,canActivate :[authGuard]},
+    {path: 'orders/detail/:id',component : OrderDetailsComponent,canActivate :[authGuard]},
+    {path:'**',component : LoginComponent}
 ];

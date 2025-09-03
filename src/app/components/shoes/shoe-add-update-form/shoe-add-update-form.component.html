@@ -1,5 +1,15 @@
 <div class="shoeForm">
-    <form (ngSubmit)="onSubmit()" [formGroup]="shoeForm">
+    <form (ngSubmit)="onSubmit()" [formGroup]="shoeForm" class="form">
+        @if(mode === 'update'){
+            <div>
+                <h2>Update form</h2>
+            </div>
+        }
+        @else {
+            <div>
+                <h2>Add form</h2>
+            </div>
+        }
         @if(mode === 'update'){
             <div>
             <mat-form-field>
@@ -49,7 +59,7 @@
         <div>
             <mat-form-field>
                 <mat-label>Inventory</mat-label>
-                <input matInput formControlName="inventory" type="number">
+                <input matInput formControlName="inventory" type="number" [min]="1">
             </mat-form-field>
         </div>
          <div>

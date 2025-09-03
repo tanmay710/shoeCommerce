@@ -1,58 +1,74 @@
-<h2>Shoes List</h2>
+<div class="container">
+    <div>
+        <h2>Shoes List</h2>
 
-<span class="example-spacer">
-    <button mat-flat-button type="button" (click)="onClick()">Add</button>
-</span>
-<mat-form-field>
-    <mat-label>Search by Product name</mat-label>
-    <input matInput placeholder="Search by type" [(ngModel)]="search" (input)="onSearch()">
-</mat-form-field>
-<div>
-    <mat-form-field>
-        <mat-label>Filter by category</mat-label>
-        <mat-select (selectionChange)="selectChange($event)">
-            @for (category of displayDropDown; track category) {
-            <mat-option [value]="category.id">{{category.name | titlecase }}</mat-option>
-            }
-        </mat-select>
-    </mat-form-field>
+        
+        <div class="row">
 
 
-</div>
-<table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
-    <ng-container matColumnDef="name">
-        <th mat-header-cell *matHeaderCellDef> Name </th>
-        <td mat-cell *matCellDef="let shoe"> {{shoe.name | titlecase }} </td>
-    </ng-container>
-    <ng-container matColumnDef="category">
-        <th mat-header-cell *matHeaderCellDef> Category </th>
-        <td mat-cell *matCellDef="let shoe">
-            {{shoe.category.name | titlecase}}
-        </td>
-    </ng-container>
-    <ng-container matColumnDef="inventory">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Inventory Quantity </th>
-        <td mat-cell *matCellDef="let shoe"> {{shoe.inventory}} </td>
-    </ng-container>
-    <ng-container matColumnDef="cost">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header> Cost </th>
-        <td mat-cell *matCellDef="let shoe"> {{shoe.cost}} </td>
-    </ng-container>
-    <ng-container matColumnDef="details">
-        <th mat-header-cell *matHeaderCellDef> Details </th>
-        <td mat-cell *matCellDef="let shoe">
-            <button mat-flat-button (click)="onDetails(shoe)">Details</button>
-        </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-        <th mat-header-cell *matHeaderCellDef>Actions </th>
-        <td mat-cell *matCellDef="let shoe">
-            <button mat-flat-button (click)="onUpdate(shoe)"><mat-icon>edit</mat-icon></button>
-            <button mat-fab aria-label="Example icon button with a delete icon" (click)="onDelete(shoe)">
-                <mat-icon>delete</mat-icon>
-            </button>
-        </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-</table>
+            <div class="filtering">
+                <div>
+                    <mat-form-field class="filterbased">
+                        <mat-label>Search by Product name</mat-label>
+                        <input matInput placeholder="Search by type" [(ngModel)]="search" (input)="onSearch()">
+                    </mat-form-field>
+                </div>
+                <div>
+                    <mat-form-field class="filterbased">
+                        <mat-label>Filter by category</mat-label>
+                        <mat-select (selectionChange)="selectChange($event)">
+                            @for (category of displayDropDown; track category) {
+                            <mat-option [value]="category.id">{{category.name | titlecase }}</mat-option>
+                            }
+                        </mat-select>
+                    </mat-form-field>
+                </div>
+            </div>
+            <span class="example-spacer"></span>
+            <button mat-flat-button type="button" (click)="onClick()" class="addbutton"><mat-icon>add</mat-icon>Add</button>
+        </div>
+        
+        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+            <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef> Name </th>
+                <td mat-cell *matCellDef="let shoe"> {{shoe.name | titlecase }} </td>
+            </ng-container>
+            <ng-container matColumnDef="category">
+                <th mat-header-cell *matHeaderCellDef> Category </th>
+                <td mat-cell *matCellDef="let shoe">
+                    {{shoe.category.name | titlecase}}
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="inventory">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Inventory Quantity </th>
+                <td mat-cell *matCellDef="let shoe"> {{shoe.inventory}} </td>
+            </ng-container>
+            <ng-container matColumnDef="cost">
+                <th mat-header-cell *matHeaderCellDef mat-sort-header> Cost </th>
+                <td mat-cell *matCellDef="let shoe"> {{shoe.cost}} </td>
+            </ng-container>
+            <ng-container matColumnDef="details">
+                <th mat-header-cell *matHeaderCellDef> Details </th>
+                <td mat-cell *matCellDef="let shoe">
+                    <button mat-flat-button (click)="onDetails(shoe)">Details</button>
+                </td>
+            </ng-container>
+            <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions </th>
+                <td mat-cell *matCellDef="let shoe">
+                    <button mat-flat-button (click)="onUpdate(shoe)"
+                        class="actionicon"><mat-icon>edit</mat-icon></button>
+                    <button mat-fab aria-label="Example icon button with a delete icon" (click)="onDelete(shoe)"
+                        class="actionicon">
+                        <mat-icon>delete</mat-icon>
+                    </button>
+                </td>
+            </ng-container>
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+        </table>
+        <mat-paginator [pageSizeOptions]="[5, 10, 20]"
+                 showFirstLastButtons
+                 aria-label="Select page of periodic elements">
+  </mat-paginator>
+    </div>

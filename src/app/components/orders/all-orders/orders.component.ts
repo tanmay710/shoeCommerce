@@ -6,6 +6,7 @@ import {MatCardModule} from '@angular/material/card';
 import {MatButtonModule} from '@angular/material/button';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
+import { UserService } from '../../../core/services/user/user.service';
 
 @Component({
   selector: 'app-orders',
@@ -19,11 +20,11 @@ export class OrdersComponent implements OnInit{
   public currentUserId : number
   public currentUserOrders : Order[]
 
-  constructor(private orderService : OrderService,private router : Router){}
+  constructor(private orderService : OrderService,private router : Router,private userService : UserService){}
 
   ngOnInit(): void {
     let allOrders = this.orderService.getAllOrders()
-    this.currentUser = JSON.parse(localStorage.getItem('userLoggedIn'))
+    this.currentUser = this.userService.getCurrentUser()
     this.currentUserId = this.currentUser.id
     this.currentUserOrders = allOrders.filter((p)=> p.userId === this.currentUserId)
   }

@@ -1,6 +1,3 @@
-<div>
-
-</div>
 <div class="loginForm">
 
 
@@ -11,13 +8,25 @@
         <div>
             <mat-form-field>
                 <mat-label>Email</mat-label>
-                <input matInput formControlName="email">
+                <input matInput formControlName="email" type="email">
+                @if(loginForm.get('email')?.hasError('required')){
+                <mat-error>Please add Email</mat-error>
+                }
+
             </mat-form-field>
         </div>
         <div>
             <mat-form-field>
                 <mat-label>Password</mat-label>
-                <input matInput formControlName="password">
+                <input matInput formControlName="password" type="password">
+                <mat-error>
+                    @if(loginForm.get('password')?.hasError('minlength')){
+                    Minimum 8 characters
+                    }
+                    @if(loginForm.get('password')?.hasError('required')){
+                    Please add password
+                    }
+                </mat-error>
             </mat-form-field>
         </div>
         <div>

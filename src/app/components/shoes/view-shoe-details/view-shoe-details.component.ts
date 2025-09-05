@@ -20,6 +20,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ReviewDialogComponent } from '../../review-dialog/review-dialog.component';
 import { NgxStarRatingModule } from 'ngx-star-rating';
  import { NgxStarsModule } from 'ngx-stars';
+import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
+import { UserService } from '../../../core/services/user/user.service';
 @Component({
   selector: 'app-view-shoe-details',
   imports: [TitleCasePipe, MatButtonModule,
@@ -43,15 +45,19 @@ export class ViewShoeDetailsComponent implements OnInit {
 
   constructor(private productService: ProductService, private route: ActivatedRoute,
     private fb: FormBuilder, private cartService: CartService, private router: Router,
-    private reviewService: ReviewService, private dialog: MatDialog
+    private userService : UserService,
+    private reviewService: ReviewService, private dialog: MatDialog,private snackbar : SnackbarService
   ) {
+    this.shoeId = +this.route.snapshot.paramMap.get('id')
+    let allShoes : ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
+    let exShoe : ShoeModel = allShoes.find((p) => p.id === this.shoeId)
     this.quantForm = this.fb.group({
-      quantity: ['', Validators.required]
+      quantity: ['', [Validators.required,Validators.max(exShoe.inventory),Validators.min(1)]]
     })
   }
 
   ngOnInit(): void {
-    this.shoeId = +this.route.snapshot.paramMap.get('id')
+    
     const shoes: ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
     this.shoe = shoes.find((p) => p.id === this.shoeId)
     this.categoryId = this.shoe.category.id
@@ -59,7 +65,7 @@ export class ViewShoeDetailsComponent implements OnInit {
     let allReviews = this.reviewService.getAllReviews()
     let thisShoeReviews = allReviews.filter((p) => p.productId === this.shoeId)
     this.shoeReviews = thisShoeReviews
-    let currUser: UserModel = JSON.parse(localStorage.getItem('userLoggedIn'))
+    let currUser: UserModel = this.userService.getCurrentUser()
     this.userId = currUser.id
   }
 
@@ -68,7 +74,8 @@ export class ViewShoeDetailsComponent implements OnInit {
       this.clicked = true
     }
     else {
-      alert("The product is currently out of stock, please select different product")
+      
+      this.snackbar.showError("The product is currently out of stock, please select different product")
     }
   }
 
@@ -85,7 +92,7 @@ export class ViewShoeDetailsComponent implements OnInit {
             ifProductInCart = true
             let totQuantity = prod.quantity + this.quantForm.value.quantity
             if (totQuantity > this.shoe.inventory) {
-              alert(`Not enough quantity in inventory, max you can buy is ${this.shoe.inventory}`)
+              this.snackbar.showError(`Not enough quantity in inventory, max you can buy is ${this.shoe.inventory}`)
             }
             else {
               prod.quantity = totQuantity
@@ -104,7 +111,7 @@ export class ViewShoeDetailsComponent implements OnInit {
               items: [],
               totalAmount: 0
             }
-            let user = JSON.parse(localStorage.getItem('userLoggedIn'))
+            let user = this.userService.getCurrentUser()
             newCart.userId = user.id
             newCart.items.push(cartItem)
             newCart.totalAmount = newCart.items.reduce((sum, item) => sum + (item.cost * item.quantity), 0)
@@ -124,7 +131,7 @@ export class ViewShoeDetailsComponent implements OnInit {
             items: [],
             totalAmount: 0
           }
-          let user = JSON.parse(localStorage.getItem('userLoggedIn'))
+          let user = this.userService.getCurrentUser()
           newCart.userId = user.id
           newCart.items.push(cartItem)
           newCart.totalAmount = newCart.items.reduce((sum, item) => sum + (item.cost * item.quantity), 0)
@@ -140,12 +147,12 @@ export class ViewShoeDetailsComponent implements OnInit {
           description: this.shoe.description
         }
         this.productService.updateShoe(newShoe)
-        alert("successfully added to cart")
+        this.snackbar.showSuccess("successfully added to cart")
         this.router.navigate(['/checkout'])
         this.quantForm.reset()
       }
       else {
-        alert(`This much quantity is not in our inventory,max quantity is ${this.shoe.inventory}`)
+        this.snackbar.showError(`This much quantity is not in our inventory,max quantity is ${this.shoe.inventory}`)
       }
     }
   }

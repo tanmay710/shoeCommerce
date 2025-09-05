@@ -1,5 +1,14 @@
 /* You can add global styles to this file, and also import other style files */
-@use 'css-star-rating/scss/star-rating';
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+.success-snackbar {
+  --mdc-snackbar-container-color: #30d035;
+  --mdc-snackbar-supporting-text-color: black;
+
+}
+.error-snackbar{
+    --mdc-snackbar-container-color:#da2323 ;
+  --mdc-snackbar-supporting-text-color: white;
+}

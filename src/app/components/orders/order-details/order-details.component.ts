@@ -12,6 +12,8 @@ import {MatDialog, MatDialogModule} from '@angular/material/dialog';
 import { ReviewDialogComponent } from '../../review-dialog/review-dialog.component';
 import { MatTableModule } from '@angular/material/table';
 import { CartItem } from '../../../core/models/cart/cart.item.model';
+import { ReviewService } from '../../../core/services/review/review.service';
+import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
 @Component({
   selector: 'app-order-details',
   imports: [MatCardModule, MatButtonModule, TitleCasePipe, ReactiveFormsModule,MatTableModule],
@@ -27,7 +29,8 @@ export class OrderDetailsComponent implements OnInit {
   public displayedColumns: string[] = ['name', 'priceperpiece', 'quantity', 'totalprice','review'];
   public dataSource : CartItem[]
   constructor(private route: ActivatedRoute, private orderService: OrderService, private router: Router,
-    private fb: FormBuilder,private dialog : MatDialog
+    private fb: FormBuilder,private dialog : MatDialog,private reviewService : ReviewService,
+    private snackbar :  SnackbarService
   ) {
     this.reviewform = this.fb.group({
       rating : ['',Validators.required],
@@ -49,6 +52,14 @@ export class OrderDetailsComponent implements OnInit {
   }
 
   public addReview(id: number) {
-    this.dialog.open(ReviewDialogComponent,{data :{productId : id,mode : 'add'}})
+    let allReviews : ReviewModel[] = this.reviewService.getAllReviews()
+    let userProductReview : ReviewModel = allReviews.find((p)=> p.userId === this.userId && p.productId === id)
+    if(userProductReview){
+      this.snackbar.showError("You have already reviewed this product")
+      return
+    }
+    else{
+      this.dialog.open(ReviewDialogComponent,{data :{productId : id,mode : 'add'}})
+    }
   }
 } 

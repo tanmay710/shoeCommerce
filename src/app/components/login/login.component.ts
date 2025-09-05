@@ -9,6 +9,7 @@ import { UserModel } from '../../core/models/user/user.model';
  import { MatButtonModule } from '@angular/material/button';
 import { ProductService } from '../../core/services/product/product.service';
 import { AuthService } from '../../core/services/auth/auth.service';
+import { SnackbarService } from '../../shared/services/snackbar/snackbar.service';
 
 @Component({
   selector: 'app-login',
@@ -19,12 +20,12 @@ import { AuthService } from '../../core/services/auth/auth.service';
 export class LoginComponent implements OnInit{
   public loginForm : FormGroup
   public users : UserModel[]
-
+  public isSubmit : boolean = false
   constructor(private userService : UserService,private fb : FormBuilder, private router : Router,
-    private productService : ProductService,private authService : AuthService){
+    private productService : ProductService,private authService : AuthService,private snackbar : SnackbarService){
     this.loginForm = this.fb.group({
       email : ['',Validators.required],
-      password : ['',Validators.required]
+      password : ['',[Validators.required,Validators.minLength(6)]]
     })
     
   }
@@ -33,19 +34,20 @@ export class LoginComponent implements OnInit{
     this.userService.getUsers().subscribe((data)=>{
       this.users = data
     })  
-    // this.productService.storeDetails()
   }
 
   public onSubmit(){
+    this.isSubmit = true
     if(this.loginForm.valid){
       const user = this.users.find((p)=> (p.email === this.loginForm.value.email) && (p.password === this.loginForm.value.password))
       if(user){
-        alert("successfully logged in")
+        
+        this.snackbar.showSuccess("successfully logged in")
         this.authService.login(user)
         this.router.navigate(['/shoelist'])
       } 
       else{
-        alert("Credentials do not match")
+        this.snackbar.showError('Credentials do not match')
         this.loginForm.reset()
       }
     }

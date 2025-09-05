@@ -9,6 +9,12 @@ import { TitleCasePipe } from '@angular/common';
 import { Order } from '../../core/models/order/order.model';
 import { OrderService } from '../../core/services/order/order.service';
 import { Router } from '@angular/router';
+import { ShoeModel } from '../../core/models/product/product.model';
+import { MatDialog } from '@angular/material/dialog';
+import { CartUpdateDialogComponent } from './cart-update-dialog/cart-update-dialog.component';
+import { ProductService } from '../../core/services/product/product.service';
+import { SnackbarService } from '../../shared/services/snackbar/snackbar.service';
+import { UserService } from '../../core/services/user/user.service';
 
 @Component({
   selector: 'app-checkout',
@@ -21,12 +27,15 @@ export class CartComponent implements OnInit{
   public user : UserModel
   public currentUser : UserModel
   public dataSource : MatTableDataSource<CartItem>
-  public displayedColumns: string[] = ['name', 'cost', 'quantity']
-  constructor(private cartService : CartService,private orderService : OrderService,private router : Router){}
+  public displayedColumns: string[] = ['name', 'cost', 'quantity','changequantity','remove']
+  constructor(private cartService : CartService,private productService : ProductService,
+    private orderService : OrderService,
+    private router : Router,private dialog : MatDialog,
+    private snackbar : SnackbarService,private userService : UserService){}
   ngOnInit(): void {
     this.userCart = this.cartService.getCart()
     this.dataSource = new MatTableDataSource(this.userCart?.items)  
-    this.user = JSON.parse(localStorage.getItem('userLoggedIn'))
+    this.user = this.userService.getCurrentUser()
   }
   
   public onConfirm(){
@@ -49,6 +58,7 @@ export class CartComponent implements OnInit{
         orderDate: orderDate.toLocaleString()
       }
       this.orderService.addOrder(order)
+      this.snackbar.showSuccess("Successfully Ordered")
       this.cartService.removeCart()
       this.router.navigate(['/orders'])
     }
@@ -56,5 +66,36 @@ export class CartComponent implements OnInit{
 
   public onClick(){
     this.router.navigate(['/shoelist'])
+  }
+
+  public onDelete(){
+    const confirmation = confirm("Are you sure you want to delete this cart")
+    if(confirmation){
+      this.cartService.removeCart()
+      this.router.navigate(['/shoelist'])
+    }
+  }
+
+  public changeQuantity(shoe : CartItem){  
+   const dialogRef =  this.dialog.open(CartUpdateDialogComponent,{data : {cartItem : shoe}})
+    dialogRef.afterClosed().subscribe(result =>{
+      this.userCart = this.cartService.getCart()
+      this.dataSource = new MatTableDataSource(this.userCart?.items) 
+    })
+  }
+
+  public removeItem(shoe : CartItem){
+    const confirmation = confirm("Are you sure you want to remove this item")
+    if(confirmation){
+      let quant : number = shoe.quantity
+      let existingShoes : ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
+      let newShoe : ShoeModel = existingShoes.find((p)=> p.id === shoe.productId)
+      newShoe.inventory = newShoe.inventory + shoe.quantity
+      this.productService.updateShoe(newShoe)
+      this.cartService.removeCartItem(shoe)
+      this.userCart = this.cartService.getCart()
+      this.dataSource = new MatTableDataSource(this.userCart?.items)
+      this.snackbar.showSuccess("Removed item")
+    }
   }
 }

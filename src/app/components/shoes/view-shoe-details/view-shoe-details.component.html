@@ -19,6 +19,15 @@
                 <mat-form-field class="quantity">
                     <mat-label>Quantity</mat-label>
                     <input matInput formControlName="quantity" type="number" [min]="1">
+                    @if(quantForm.hasError('required') &&(quantForm.touched && quantForm.dirty)){
+                        <mat-error>Please enter quantity</mat-error>
+                    }
+                    @if(quantForm.get('quantity')?.hasError('min')&& quantForm.get('quantity')?.touched){
+                        <mat-error>Please enter valid quantity</mat-error>
+                    }
+                    @if(quantForm.get('quantity')?.hasError('max')&& quantForm.get('quantity')?.touched){
+                        <mat-error>Quantity unavailable : max({{shoe.inventory}})</mat-error>
+                    }
                 </mat-form-field>
                 <div>
                     <button mat-flat-button type="submit">Confirm</button>

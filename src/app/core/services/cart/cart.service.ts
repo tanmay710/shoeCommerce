@@ -2,12 +2,15 @@ import { Injectable } from '@angular/core';
 import { Cart } from '../../models/cart/cart.model';
 import { CartItem } from '../../models/cart/cart.item.model';
 import { UserModel } from '../../models/user/user.model';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CartService {
 
+  private cartSize = new BehaviorSubject<number>(0)
+  public cartSize$ = this.cartSize.asObservable()
   constructor() { }
 
   public getCart(){
@@ -26,6 +29,7 @@ export class CartService {
     else{
       localStorage.setItem('cart',JSON.stringify(cart))
     }
+    this.cartSize.next(existingCart.items.length)
   }
 
   public updateCartItem(cartItem : CartItem){
@@ -38,7 +42,24 @@ export class CartService {
     }
   }
 
+  public removeCartItem(cartItem : CartItem){
+    const existingCart: Cart = JSON.parse(localStorage.getItem('cart'))
+    let itemId = existingCart.items.findIndex((p)=> p.productId === cartItem.productId)
+    let newcartItems : CartItem[] = existingCart.items.filter((p)=> p.productId !== cartItem.productId)
+    existingCart.items = [...newcartItems]
+    existingCart.totalAmount = existingCart.items.reduce((sum, item) => sum + (item.cost * item.quantity), 0)
+    if(existingCart.items.length === 0){
+      localStorage.removeItem('cart')
+    }
+    else{
+          localStorage.setItem('cart',JSON.stringify(existingCart))
+    }
+    this.cartSize.next(existingCart.items.length)
+  }
+
   public removeCart(){
+    const existingCart: Cart = JSON.parse(localStorage.getItem('cart'))
     localStorage.removeItem('cart')
+    this.cartSize.next(existingCart?.items.length)
   }
 }

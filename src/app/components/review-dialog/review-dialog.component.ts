@@ -19,12 +19,14 @@ import {
 import { ReviewService } from '../../core/services/review/review.service';
 import { UserModel } from '../../core/models/user/user.model';
 import { ReviewModel } from '../../core/models/review/review';
+import { SnackbarService } from '../../shared/services/snackbar/snackbar.service';
+import { UserService } from '../../core/services/user/user.service';
 
 @Component({
   selector: 'app-review-dialog',
   imports: [ReactiveFormsModule, MatButtonModule, MatSelectModule, MatInputModule,
     MatFormFieldModule, FormsModule,  MatDialogContent, MatDialogTitle,
-    StarRatingModule,NgxStarRatingModule
+    StarRatingModule,NgxStarRatingModule,
   ],
   templateUrl: './review-dialog.component.html',
   styleUrl: './review-dialog.component.scss'
@@ -38,8 +40,9 @@ export class ReviewDialogComponent implements OnInit {
   public user: UserModel
   public existingReview : ReviewModel
   
-  constructor(private fb: FormBuilder,
+  constructor(private fb: FormBuilder,private userService : UserService,
     private dialogRef: MatDialogRef<ReviewDialogComponent>, private reviewService: ReviewService,
+    private snackbar : SnackbarService,
     @Inject(MAT_DIALOG_DATA) public data: { productId: number, mode: string,existingReview : ReviewModel }
   ) {
     
@@ -53,8 +56,7 @@ export class ReviewDialogComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    let currentUser: UserModel = JSON.parse(localStorage.getItem('userLoggedIn'))
-    this.user = currentUser
+    this.user = this.userService.getCurrentUser()
     if(this.mode === 'update'){
       this.reviewForm.patchValue(this.existingReview)
     }
@@ -84,7 +86,7 @@ export class ReviewDialogComponent implements OnInit {
         }
         this.reviewService.addReview(newReview)
         this.dialogRef.close()
-        alert("Successfully added a review")
+        this.snackbar.showSuccess("Successfully added a review")
       }
       else{
         let updatedReview : ReviewModel ={
@@ -97,7 +99,7 @@ export class ReviewDialogComponent implements OnInit {
           date: this.existingReview.date
         }
         this.reviewService.updateReview(updatedReview)
-        alert("Successfully updated your review")
+        this.snackbar.showSuccess("Successfully updated your review")
         this.dialogRef.close()
       }
     }

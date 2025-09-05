@@ -24,4 +24,9 @@ export class UserService {
     return of(users)
   }
 
+  getCurrentUser(){
+    let currUser : UserModel = JSON.parse(localStorage.getItem('userLoggedIn'))
+    return currUser
+  }
+
 }

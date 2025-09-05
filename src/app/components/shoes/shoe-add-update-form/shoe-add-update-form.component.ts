@@ -8,11 +8,13 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInput } from "@angular/material/input";
 import { CategoriesService } from '../../../core/services/categories/categories.service';
 import { MatSelectModule } from "@angular/material/select";
-import { MatButton } from "@angular/material/button";
+import { MatButton, MatButtonModule } from "@angular/material/button";
+import { TitleCasePipe } from '@angular/common';
+import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
 
 @Component({
   selector: 'app-shoe-add-update-form',
-  imports: [ReactiveFormsModule, MatFormFieldModule, MatInput, MatSelectModule, MatButton],
+  imports: [ReactiveFormsModule, MatFormFieldModule, MatInput, MatSelectModule, MatButtonModule,TitleCasePipe],
   templateUrl: './shoe-add-update-form.component.html',
   styleUrl: './shoe-add-update-form.component.scss'
 })
@@ -21,9 +23,10 @@ export class ShoeAddUpdateFormComponent implements OnInit {
   public shoeForm: FormGroup
   public shoeId: number
   public categories: ShoeCategory[]
-
+  public isSubmit : boolean = false
   constructor(private productService: ProductService, private router: Router,
-    private route: ActivatedRoute, private fb: FormBuilder, private categoriesService: CategoriesService
+    private route: ActivatedRoute, private fb: FormBuilder, private categoriesService: CategoriesService,
+    private snackbar : SnackbarService
   ) {
     this.shoeForm = this.fb.group({
       id: [''],
@@ -31,8 +34,8 @@ export class ShoeAddUpdateFormComponent implements OnInit {
       category: ['', Validators.required],
       description: ['', Validators.required],
       img_url: this.fb.array([]),
-      inventory: ['', Validators.required],
-      cost: ['', Validators.required]
+      inventory: ['', [Validators.required,Validators.min(1)]],
+      cost: ['', [Validators.required,Validators.min(1)]]
     })
   }
 
@@ -51,8 +54,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
     return this.shoeForm.get('img_url') as FormArray
   }
 
-  public addUrl() {
-    // (this.shoeForm.get('img_url') as FormArray).push(this.fb.control(''))
+  public addUrl() { 
     this.getUrlArray().push(this.fb.control(''))
   }
 
@@ -61,6 +63,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
   }
 
   public onSubmit() {
+    this.isSubmit = true
     if (this.shoeForm.valid) {
       if (this.mode === 'update') {
         console.log("update");
@@ -84,7 +87,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             description: this.shoeForm.value.description
           }
           this.productService.updateShoe(updateShoe)
-          alert("successfully updated the shoe data")
+          this.snackbar.showSuccess("successfully updated the shoe data")
           this.router.navigate(['/shoelist'])
         }
         else {
@@ -111,7 +114,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
         const newCategory = categories.find((p) => p.name.trim().toLowerCase() === this.shoeForm.value.category.toLowerCase().trim())
         let imgUrls = this.shoeForm.value.img_url.filter((p)=> p.trim() !== "")
         if(imgUrls.length ===0){
-          alert("please add image url")
+          this.snackbar.showError("image url missing")
           return
         }
         else {
@@ -128,7 +131,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             description: this.shoeForm.value.description
           }
           this.productService.addShoe(addShoe)
-          alert("successfully added the shoe data")
+          this.snackbar.showSuccess("successfully added the shoe data")
           this.router.navigate(['/shoelist'])
         }
       }

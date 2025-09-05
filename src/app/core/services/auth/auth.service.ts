@@ -6,7 +6,7 @@ import { UserModel } from '../../models/user/user.model';
 })
 export class AuthService {
   private isLoggedIn = new BehaviorSubject<boolean>(false)
-  isLoggedIn$ = this.isLoggedIn.asObservable()
+  public isLoggedIn$ = this.isLoggedIn.asObservable()
 
   constructor() {
     const user = localStorage.getItem('userLoggedIn')

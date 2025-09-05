@@ -1,34 +1,71 @@
-<div>
-    SignUp
-</div>
 <div class="signupForm">
     <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+        <div>
+            <h2>SignUp</h2>
+        </div>
         <div>
             <mat-form-field>
                 <mat-label>Name</mat-label>
                 <input matInput formControlName="name">
+                @if(signupForm.get('name')?.hasError('required')){
+                    <mat-error>Please add a name</mat-error>
+                }
+                @if(isSubmit && signupForm?.get('name').hasError('required')){
+                        <mat-error>Please add Name</mat-error>
+                   } 
             </mat-form-field>
         </div>
         <div>
             <mat-form-field>
                 <mat-label>Email</mat-label>
-                <input matInput formControlName="email">
+                <input matInput formControlName="email" type="email">
+                @if(signupForm.get('email')?.hasError('required')){
+                    <mat-error>Please add a Email</mat-error>
+                }
+                @if(signupForm.get('email')?.hasError('email') && (signupForm.get('email')?.touched)){
+                    <mat-error>Invalid email</mat-error>
+                }
+                @if(isSubmit && signupForm?.get('email').hasError('required')){
+                        <mat-error>Please add Email</mat-error>
+                   }
             </mat-form-field>
         </div>
         <div>
             <mat-form-field>
-                <mat-label>Phone</mat-label>
+                <mat-label>Phone number</mat-label>
                 <input matInput formControlName="phone">
+                @if(signupForm.get('phone')?.hasError('required')){
+                    <mat-error>Please add a Phone number</mat-error>
+                }
+                @if(signupForm.get('phone')?.hasError('minlength') && (signupForm.get('phone')?.touched)){
+                    <mat-error>Minimum 10 numbers</mat-error>
+                }
+                @if(signupForm.get('phone')?.hasError('maxlength') && (signupForm.get('phone')?.dirty)){
+                    <mat-error>Maximum 10 numbers</mat-error>
+                }
+                @if(isSubmit && signupForm?.get('phone').hasError('required')){
+                        <mat-error>Please add Phone number</mat-error>
+                   }
             </mat-form-field>
         </div>
         <div>
             <mat-form-field>
                 <mat-label>Password</mat-label>
-                <input matInput formControlName="password">
+                <input matInput formControlName="password" type="password">
+                @if(signupForm.get('password')?.hasError('required')){
+                    <mat-error>Please add a password</mat-error>
+                }
+                @if(signupForm.get('password')?.hasError('minlength') && (signupForm.get('password')?.touched)){
+                    <mat-error>Minimum 6 characters</mat-error>
+                }
+                @if(isSubmit && signupForm?.get('password').hasError('required')){
+                        <mat-error>Please add password</mat-error>
+                   }
             </mat-form-field>
         </div>
         <div>
             <button mat-flat-button type="submit">Submit</button>
+            <button mat-button type="button" routerLink="/login">Login</button>
         </div>
 
     </form>

@@ -7,7 +7,10 @@
         Product List
     </button>
     <button routerLink="/checkout" routerLinkActive="router-link-active" mat-button class="example-icon">
-        <span>{{cartSize}}</span>
+        @if(cartProduct !== 0){
+            <span>{{cartProduct}}</span>
+        }
+       
         <mat-icon>shopping_cart</mat-icon>
     </button>
     <button routerLink="/orders" mat-button class="example-icon" aria-label="Example icon-button with share icon">

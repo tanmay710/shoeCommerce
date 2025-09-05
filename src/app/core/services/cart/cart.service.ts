@@ -25,11 +25,13 @@ export class CartService {
       existingCart.items.push(cartItem)
       existingCart.totalAmount = existingCart.items.reduce((sum, item) => sum + (item.cost * item.quantity), 0)
       localStorage.setItem('cart',JSON.stringify(existingCart))
+      this.cartSize.next(existingCart.items.length)
     }
     else{
       localStorage.setItem('cart',JSON.stringify(cart))
+      this.cartSize.next(cart.items.length)
     }
-    this.cartSize.next(existingCart.items.length)
+    
   }
 
   public updateCartItem(cartItem : CartItem){

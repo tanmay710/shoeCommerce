@@ -32,6 +32,7 @@ import { UserService } from '../../../core/services/user/user.service';
   styleUrl: './view-shoe-details.component.scss'
 })
 export class ViewShoeDetailsComponent implements OnInit {
+
   public shoe: ShoeModel
   public shoeId: number
   public clicked: boolean = false
@@ -80,16 +81,13 @@ export class ViewShoeDetailsComponent implements OnInit {
   }
 
   public onSubmit() {
-    this.submitted = true
     if (this.quantForm.valid) {
       if (this.quantForm.value.quantity <= this.shoe.inventory) {
         let existingCart: Cart = JSON.parse(localStorage.getItem('cart'))
-        let ifProductInCart: boolean = false
-
+       
         if (existingCart) {
           let prod: CartItem = existingCart.items.find((p) => p.productId === this.shoeId)
           if (prod) {
-            ifProductInCart = true
             let totQuantity = prod.quantity + this.quantForm.value.quantity
             if (totQuantity > this.shoe.inventory) {
               this.snackbar.showError(`Not enough quantity in inventory, max you can buy is ${this.shoe.inventory}`)
@@ -150,10 +148,7 @@ export class ViewShoeDetailsComponent implements OnInit {
         this.snackbar.showSuccess("successfully added to cart")
         this.router.navigate(['/checkout'])
         this.quantForm.reset()
-      }
-      else {
-        this.snackbar.showError(`This much quantity is not in our inventory,max quantity is ${this.shoe.inventory}`)
-      }
+      } 
     }
   }
 

@@ -15,14 +15,14 @@ import { Cart } from '../../../core/models/cart/cart.model';
 })
 export class HeaderComponent implements OnInit{
   public isLoggedIn : boolean = false
-  cartSize : number
+  public cartProduct : number
   constructor(private authService : AuthService,private router : Router,private cartService : CartService){}
   ngOnInit(): void {
     this.authService.isLoggedIn$.subscribe((status)=>{
       this.isLoggedIn = status
     })
     this.cartService.cartSize$.subscribe((size)=>{
-      this.cartSize = size
+      this.cartProduct = size
     })
   }
 

@@ -79,7 +79,8 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             name: this.shoeForm.value.name,
             category: {
               id: newCategory.id,
-              name: newCategory.name
+              name: newCategory.name,
+              gst: newCategory.gst
             },
             inventory: this.shoeForm.value.inventory,
             cost: this.shoeForm.value.cost,
@@ -96,7 +97,8 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             name: this.shoeForm.value.name,
             category: {
               id: newCategory.id,
-              name: newCategory.name
+              name: newCategory.name,
+              gst: newCategory.gst
             },
             inventory: this.shoeForm.value.inventory,
             cost: this.shoeForm.value.cost,
@@ -123,7 +125,8 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             name: this.shoeForm.value.name,
             category: {
               id: newCategory.id,
-              name: newCategory.name
+              name: newCategory.name,
+              gst: newCategory.gst
             },
             inventory: +this.shoeForm.value.inventory,
             cost: +this.shoeForm.value.cost,

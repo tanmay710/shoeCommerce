@@ -98,11 +98,14 @@ export class ViewShoeDetailsComponent implements OnInit {
             this.cartService.updateCartItem(prod)
           }
           else {
+            let totcost = (this.shoe.cost * this.quantForm.value.quantity * (this.shoe.category.gst/100)) + this.shoe.cost * this.quantForm.value.quantity
             let cartItem: CartItem = {
               productId: this.shoeId,
               name: this.shoe.name,
               cost: this.shoe.cost,
-              quantity: this.quantForm.value.quantity
+              quantity: this.quantForm.value.quantity,
+              gst: this.shoe.category.gst,
+              totalcost: totcost
             }
             let newCart: Cart = {
               userId: 0,
@@ -112,16 +115,19 @@ export class ViewShoeDetailsComponent implements OnInit {
             let user = this.userService.getCurrentUser()
             newCart.userId = user.id
             newCart.items.push(cartItem)
-            newCart.totalAmount = newCart.items.reduce((sum, item) => sum + (item.cost * item.quantity), 0)
+            newCart.totalAmount = newCart.items.reduce((sum, item) => sum + item.totalcost, 0)
             this.cartService.addCartItem(newCart, cartItem)
           }
         }
         else {
+          let totcost = (this.shoe.cost * this.quantForm.value.quantity * (this.shoe.category.gst/100)) + this.shoe.cost * this.quantForm.value.quantity
           let cartItem: CartItem = {
             productId: this.shoeId,
             name: this.shoe.name,
             cost: this.shoe.cost,
-            quantity: this.quantForm.value.quantity
+            quantity: this.quantForm.value.quantity,
+            gst: this.shoe.category.gst,
+            totalcost: totcost
           }
 
           let newCart: Cart = {
@@ -132,19 +138,9 @@ export class ViewShoeDetailsComponent implements OnInit {
           let user = this.userService.getCurrentUser()
           newCart.userId = user.id
           newCart.items.push(cartItem)
-          newCart.totalAmount = newCart.items.reduce((sum, item) => sum + (item.cost * item.quantity), 0)
+          newCart.totalAmount = newCart.items.reduce((sum, item) => sum + item.totalcost, 0)
           this.cartService.addCartItem(newCart, cartItem)
         }
-        let newShoe: ShoeModel = {
-          id: this.shoe.id,
-          name: this.shoe.name,
-          category: this.shoe.category,
-          inventory: this.shoe.inventory - this.quantForm.value.quantity,
-          cost: this.shoe.cost,
-          img_url: this.shoe.img_url,
-          description: this.shoe.description
-        }
-        this.productService.updateShoe(newShoe)
         this.snackbar.showSuccess("successfully added to cart")
         this.router.navigate(['/checkout'])
         this.quantForm.reset()

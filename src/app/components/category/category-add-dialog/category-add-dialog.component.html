@@ -1,0 +1,51 @@
+<div class="categoryaddform">
+    <h2 mat-dialog-title>Add category</h2>
+    <mat-dialog-content>
+        <form [formGroup]="categoryAddForm" (ngSubmit)="onSubmit()">
+            @if(mode === 'update'){
+            <div>
+                <h2>Update form</h2>
+            </div>
+            }
+            @else {
+            <div>
+                <h2>Add form</h2>
+            </div>
+            }
+            @if(mode === 'update'){
+            <div>
+                <mat-form-field>
+                    <mat-label>Category Id</mat-label>
+                    <input matInput formControlName="id" [readonly]="true">
+                </mat-form-field>
+            </div>
+            }
+            <div>
+                <mat-form-field>
+                    <mat-label>Name</mat-label>
+                    <input matInput formControlName="name" type="text">
+                    @if(categoryAddForm.get('name')?.hasError('required')){
+                    <mat-error>Please add a name</mat-error>
+                    }
+                </mat-form-field>
+            </div>
+            <div>
+                <mat-form-field>
+                    <mat-label>GST%</mat-label>
+                    <input matInput formControlName="gst" type="number" max="18">
+                    @if(categoryAddForm.get('gst')?.hasError('required')){
+                    <mat-error>Please add gst</mat-error>
+                    }
+                    @if(categoryAddForm.get('gst')?.hasError('max')){
+                    <mat-error>Maximum gst rate is 18%</mat-error>
+                    }
+                </mat-form-field>
+
+            </div>
+            <div>
+                <button mat-flat-button type="submit" color="primary">Submit</button>
+                <button mat-flat-button type="button" color="warn" (click)="onClose()">Close</button>
+            </div>
+        </form>
+    </mat-dialog-content>
+</div>

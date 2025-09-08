@@ -29,6 +29,7 @@ export class CartUpdateDialogComponent implements OnInit {
   updateForm: FormGroup
   public cartItem: CartItem
   public shoe: ShoeModel
+  
   constructor(private fb: FormBuilder, private cartService: CartService,private snackbar : SnackbarService ,
     private productService: ProductService,
     private dialogRef: MatDialogRef<CartUpdateDialogComponent>,
@@ -50,7 +51,9 @@ export class CartUpdateDialogComponent implements OnInit {
     if (this.updateForm.valid) {
       if (this.updateForm.value.quantity <= this.shoe.inventory) {
         let newCartItem: CartItem = { ...this.cartItem }
+        let totcost = (this.shoe.cost * this.updateForm.value.quantity * (this.shoe.category.gst/100)) + this.shoe.cost * this.updateForm.value.quantity
         newCartItem.quantity = this.updateForm.value.quantity
+        newCartItem.totalcost = totcost
         this.cartService.updateCartItem(newCartItem)
         this.dialogRef.close()
         let quant : number
@@ -75,9 +78,9 @@ export class CartUpdateDialogComponent implements OnInit {
         this.snackbar.showSuccess("successfully updated the item")
       }
       else{
-        this.snackbar.showError("Not enough quantity in inventory")
+        this.snackbar.showError(`Not enough quantity in inventory,max(${this.shoe.inventory})`)
       }
-    }
+    } 
   }
 
   public onClose() {

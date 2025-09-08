@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ShoeModel } from '../../models/product/product.model';
+import { ShoeCategory } from '../../models/product-category/product.category.model';
 
 
 @Injectable({
@@ -12,7 +13,8 @@ export class ProductService {
     name: 'jordans',
     category: {
       id: 1,
-      name: 'sport'
+      name: 'sport',
+      gst: 18
     }
   ,
     inventory: 10,
@@ -28,7 +30,8 @@ export class ProductService {
     name: 'airforce',
     category: {
       id: 3,
-      name: 'casual'
+      name: 'casual',
+      gst: 18
     },
     inventory: 10,
     cost: 10000,
@@ -43,7 +46,8 @@ export class ProductService {
     name: 'airmax',
     category: {
       id: 1,
-      name: 'sport'
+      name: 'sport',
+      gst: 18
     },
     inventory: 10,
     cost: 15000,
@@ -58,7 +62,8 @@ export class ProductService {
     name: 'gucci',
     category: {
       id: 2,
-      name: 'formal'
+      name: 'formal',
+      gst: 18
     },
     inventory: 10,
     cost: 30000,
@@ -73,7 +78,8 @@ export class ProductService {
     name: 'hushpuppies',
     category: {
       id: 2,
-      name: 'formal'
+      name: 'formal',
+      gst: 18
     },
     inventory: 10,
     cost: 6000,
@@ -110,10 +116,19 @@ export class ProductService {
     }
   }
 
+  
   public deleteShoe(shoe : ShoeModel){
     let currentShoes:ShoeModel[] = JSON.parse(localStorage.getItem('shoes') || '[]')
     let afterDeletedShoe = currentShoes.filter((p)=> p.id !== shoe.id)
       localStorage.setItem('shoes',JSON.stringify(afterDeletedShoe))
   }
 
+  public updateShoeCategory(category : ShoeCategory){
+    let allShoes : ShoeModel[] = this.getShoes()
+    let categoryShoes : ShoeModel[] = allShoes.filter((p)=> p.category.id === category.id)
+    for(let i = 0; i < categoryShoes.length; i++){
+      categoryShoes[i].category = {...category}
+      this.updateShoe(categoryShoes[i])
+    }
+  } 
 }

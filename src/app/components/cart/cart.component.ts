@@ -15,6 +15,7 @@ import { CartUpdateDialogComponent } from './cart-update-dialog/cart-update-dial
 import { ProductService } from '../../core/services/product/product.service';
 import { SnackbarService } from '../../shared/services/snackbar/snackbar.service';
 import { UserService } from '../../core/services/user/user.service';
+import { ShoeCategory } from '../../core/models/product-category/product.category.model';
 
 @Component({
   selector: 'app-checkout',
@@ -27,15 +28,19 @@ export class CartComponent implements OnInit{
   public user : UserModel
   public currentUser : UserModel
   public dataSource : MatTableDataSource<CartItem>
-  public displayedColumns: string[] = ['name', 'cost', 'quantity','changequantity','remove']
+  public categories : ShoeCategory[]
+  public displayedColumns: string[] = ['name', 'cost', 'quantity','totalcost','categorygst','gst','totalcostgst','changequantity','remove']
+
   constructor(private cartService : CartService,private productService : ProductService,
     private orderService : OrderService,
     private router : Router,private dialog : MatDialog,
     private snackbar : SnackbarService,private userService : UserService){}
+    
   ngOnInit(): void {
     this.userCart = this.cartService.getCart()
     this.dataSource = new MatTableDataSource(this.userCart?.items)  
     this.user = this.userService.getCurrentUser()
+    
   }
   
   public onConfirm(){
@@ -57,6 +62,12 @@ export class CartComponent implements OnInit{
         orderId: lastOrderIndex + 1,
         orderDate: orderDate.toLocaleString()
       }
+      let allShoes : ShoeModel[] = this.productService.getShoes()
+      for(let i = 0; i < this.userCart.items.length; i++){
+        let shoe : ShoeModel = allShoes.find((p)=> p.id === this.userCart.items[i].productId)
+        shoe.inventory = shoe.inventory - this.userCart.items[i].quantity
+        this.productService.updateShoe(shoe)
+      }    
       this.orderService.addOrder(order)
       this.snackbar.showSuccess("Successfully Ordered")
       this.cartService.removeCart()
@@ -88,10 +99,10 @@ export class CartComponent implements OnInit{
     const confirmation = confirm("Are you sure you want to remove this item")
     if(confirmation){
       let quant : number = shoe.quantity
-      let existingShoes : ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
+      let existingShoes : ShoeModel[] = this.productService.getShoes()
       let newShoe : ShoeModel = existingShoes.find((p)=> p.id === shoe.productId)
-      newShoe.inventory = newShoe.inventory + shoe.quantity
-      this.productService.updateShoe(newShoe)
+      // newShoe.inventory = newShoe.inventory + shoe.quantity
+      // this.productService.updateShoe(newShoe)
       this.cartService.removeCartItem(shoe)
       this.userCart = this.cartService.getCart()
       this.dataSource = new MatTableDataSource(this.userCart?.items)

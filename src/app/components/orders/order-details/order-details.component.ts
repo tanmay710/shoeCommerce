@@ -26,7 +26,7 @@ export class OrderDetailsComponent implements OnInit {
   public orderId: number
   public userId: number
   public reviewform: FormGroup
-  public displayedColumns: string[] = ['name', 'priceperpiece', 'quantity', 'totalprice','review'];
+  public displayedColumns: string[] = ['name', 'priceperpiece', 'quantity', 'totalprice','gst','gstcost','totalcostaftergst','review'];
   public dataSource : CartItem[]
   constructor(private route: ActivatedRoute, private orderService: OrderService, private router: Router,
     private fb: FormBuilder,private dialog : MatDialog,private reviewService : ReviewService,

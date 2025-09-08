@@ -6,6 +6,9 @@
         aria-label="Example icon-button with heart icon">
         Product List
     </button>
+    <button routerLink="/categories" mat-button class="example-icon" aria-label="Example icon-button with share icon">
+        Categories
+    </button>
     <button routerLink="/checkout" routerLinkActive="router-link-active" mat-button class="example-icon">
         @if(cartProduct !== 0){
             <span>{{cartProduct}}</span>
@@ -13,6 +16,7 @@
        
         <mat-icon>shopping_cart</mat-icon>
     </button>
+    
     <button routerLink="/orders" mat-button class="example-icon" aria-label="Example icon-button with share icon">
         Previous Orders
     </button>

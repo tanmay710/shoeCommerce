@@ -5,7 +5,6 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth/auth.service';
 import { CartService } from '../../../core/services/cart/cart.service';
-import { Cart } from '../../../core/models/cart/cart.model';
 
 @Component({
   selector: 'app-header',

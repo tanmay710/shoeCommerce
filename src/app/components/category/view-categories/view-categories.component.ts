@@ -1,5 +1,4 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
-import { ShoeCategory } from '../../../core/models/product-category/product.category.model';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
 import { MatSort } from '@angular/material/sort';
@@ -9,6 +8,7 @@ import { TitleCasePipe } from '@angular/common';
 import { MatIconModule } from "@angular/material/icon";
 import { MatDialog } from '@angular/material/dialog';
 import { CategoryAddDialogComponent } from '../category-add-dialog/category-add-dialog.component';
+import { ProductCategory } from '../../../core/models/product-category/product.category.model';
 
 @Component({
   selector: 'app-view-categories',
@@ -18,8 +18,8 @@ import { CategoryAddDialogComponent } from '../category-add-dialog/category-add-
 })
 export class ViewCategoriesComponent implements OnInit,AfterViewInit{
 
-  public categories : ShoeCategory[]
-  public categoryDataSource : MatTableDataSource<ShoeCategory>
+  public categories : ProductCategory[]
+  public categoryDataSource : MatTableDataSource<ProductCategory>
   public displayedColumns: string[] = ['id', 'name', 'gst', 'actions']
 
   @ViewChild(MatSort) sort!: MatSort;
@@ -45,7 +45,7 @@ export class ViewCategoriesComponent implements OnInit,AfterViewInit{
     })
   }
 
-  public onUpdate(category : ShoeCategory){
+  public onUpdate(category : ProductCategory){
     const dialogref = this.dialog.open(CategoryAddDialogComponent,{data : { category:category, mode : 'update'} })
     dialogref.afterClosed().subscribe((result)=>{
       this.categories =   this.categoriesService.getCategories()

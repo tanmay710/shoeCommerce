@@ -25,4 +25,12 @@ export class SnackbarService {
       verticalPosition : 'top'
     })
   }
+
+  public showSnackbar(message : string,type : 'Success' | 'Error' | 'Info' | 'Warning'){
+    this.snackBar.open(message,'Dismiss',{
+      duration : 3000,
+      panelClass : type === 'Success'? ['success-snackbar'] : ['error-snackbar'],
+      verticalPosition : type === 'Success'? 'top' : 'bottom'
+    })
+  }
 }

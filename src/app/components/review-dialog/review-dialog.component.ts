@@ -82,7 +82,6 @@ export class ReviewDialogComponent implements OnInit {
           productId: this.productId,
           userId: this.user.id,
           date: newDate.toLocaleString(),
-          userName: this.user.name
         }
         this.reviewService.addReview(newReview)
         this.dialogRef.close()
@@ -95,7 +94,6 @@ export class ReviewDialogComponent implements OnInit {
           comment: this.reviewForm.value.comment,
           productId: this.existingReview.productId,
           userId: this.existingReview.userId,
-          userName: this.existingReview.userName,
           date: this.existingReview.date
         }
         this.reviewService.updateReview(updatedReview)

@@ -14,9 +14,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
-import { ShoeCategory } from '../../../core/models/product-category/product.category.model';
 import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
 import { ProductService } from '../../../core/services/product/product.service';
+import { ProductCategory } from '../../../core/models/product-category/product.category.model';
+import { CartService } from '../../../core/services/cart/cart.service';
+import { CartModel } from '../../../core/models/cart/cart.model';
+import { CartItem } from '../../../core/models/cart/cart.item.model';
+import { ProductModel } from '../../../core/models/product/product.model';
 @Component({
   selector: 'app-category-add-dialog',
   imports: [
@@ -29,11 +33,15 @@ import { ProductService } from '../../../core/services/product/product.service';
 export class CategoryAddDialogComponent implements OnInit {
   public categoryAddForm: FormGroup
   public mode: string
-  public category: ShoeCategory
-  constructor(private categoriesService: CategoriesService, private dialogRef: MatDialogRef<CategoryAddDialogComponent>,
-    private fb: FormBuilder, private snackbar: SnackbarService,
-    @Inject(MAT_DIALOG_DATA) public data: { category: ShoeCategory, mode: string },
-    private productService : ProductService
+  public category: ProductCategory
+  public categories: ProductCategory[]
+  constructor(private categoriesService: CategoriesService,
+    private dialogRef: MatDialogRef<CategoryAddDialogComponent>,
+    private cartService: CartService,
+    private fb: FormBuilder,
+    private snackbar: SnackbarService,
+    @Inject(MAT_DIALOG_DATA) public data: { category: ProductCategory, mode: string },
+    private productService: ProductService
   ) {
     this.categoryAddForm = this.fb.group({
       id: [''],
@@ -48,6 +56,7 @@ export class CategoryAddDialogComponent implements OnInit {
     if (this.mode === 'update') {
       this.categoryAddForm.patchValue(this.category)
     }
+    this.categories = this.categoriesService.getCategories()
   }
 
   onClose() {
@@ -57,10 +66,10 @@ export class CategoryAddDialogComponent implements OnInit {
   onSubmit() {
     if (this.categoryAddForm.valid) {
       if (this.mode === 'add') {
-        let existingCategories: ShoeCategory[] = this.categoriesService.getCategories()
+        let existingCategories: ProductCategory[] = this.categoriesService.getCategories()
         let lastcategory = existingCategories[existingCategories.length - 1]
 
-        let newCategory: ShoeCategory = {
+        let newCategory: ProductCategory = {
           id: lastcategory.id + 1,
           name: this.categoryAddForm.value.name.toLowerCase().trim(),
           gst: this.categoryAddForm.value.gst
@@ -69,14 +78,36 @@ export class CategoryAddDialogComponent implements OnInit {
         this.snackbar.showSuccess('Successfully added a new category')
         this.dialogRef.close()
       }
-      else{
-        let updatedCategory : ShoeCategory = {
+      else {
+        let updatedCategory: ProductCategory = {
           id: this.category.id,
           name: this.categoryAddForm.value.name,
           gst: this.categoryAddForm.value.gst
         }
-        this.categoriesService.updateCategory(updatedCategory)
-        this.productService.updateShoeCategory(updatedCategory)
+        // let prods: ProductModel[] = this.productService.getShoes()
+        // let prodsWithUpdatedCategory = prods.filter((z) => z.categoryId == updatedCategory.id)
+
+        // this.categoriesService.updateCategory(updatedCategory)
+        // let carts: CartModel[] = this.cartService.getCart()
+        // let updatedCarts : CartModel[] = carts.filter((p)=>{
+        //   return p.items.includes(prodsWithUpdatedCategory.)
+        // })
+      // let updatedCarts: CartModel[] = carts.map((p) => {
+        //   let cartItems: CartItem[] = p.items
+        //   let updatedItems: CartItem[] = cartItems.filter((c) => {
+            
+        //     return {
+        //       productId: c.productId,
+        //       quantity: c.quantity,
+        //       totalcost: number
+        //     }
+        //   })
+        //   return {
+        //     userId: p.userId,
+        //     totalAmount: 0,
+        //     items: []
+        //   }
+        // })
         this.snackbar.showSuccess('Successfully updated the category')
         this.dialogRef.close()
       }

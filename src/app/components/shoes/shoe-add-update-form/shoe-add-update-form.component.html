@@ -34,9 +34,9 @@
         <div>
             <mat-form-field>
                 <mat-label>Category</mat-label>
-                <mat-select formControlName="category">
+                <mat-select formControlName="categoryId">
                     @for (category of categories; track $index) {
-                    <mat-option [value]= "category.name">
+                    <mat-option [value]= "category.id">
                         {{category.name | titlecase}}
                     </mat-option>
                     }

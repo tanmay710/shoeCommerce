@@ -2,16 +2,16 @@
 
 <div class="details">
     <div class="images">
-        @for(url of shoe.img_url;track $index){
+        @for(url of productShow.img_url;track $index){
         <img [src]="url">
         }
     </div>
     <div class="info">
-        <h2>Shoe Name : {{shoe.name| titlecase}}</h2>
-        <h3>Shoe Category : {{shoe.category.name | titlecase}}</h3>
-        <h3>Cost : {{shoe.cost}}</h3>
-        <p><strong>Description: </strong>{{shoe.description}}</p>
-        <button mat-stroked-button (click)="addToCart()">Add to cart</button>
+        <h2>Shoe Name : {{productShow.name| titlecase}}</h2>
+        <h3>Shoe Category : {{productShow.category.name | titlecase}}</h3>
+        <h3>Cost : {{productShow.cost}}</h3>
+        <p><strong>Description: </strong>{{productShow.description}}</p>
+        <button mat-raised-button color="accent" (click)="addToCart()">Add to cart</button>
         @if(clicked){
         <div>
             <form [formGroup]="quantForm" (ngSubmit)="onSubmit()">
@@ -26,11 +26,11 @@
                         <mat-error>Please enter valid quantity</mat-error>
                     }
                     @if(quantForm.get('quantity')?.hasError('max')&& quantForm.get('quantity')?.touched){
-                        <mat-error>Quantity unavailable : max({{shoe.inventory}})</mat-error>
+                        <mat-error>Quantity unavailable : max({{productShow.inventory}})</mat-error>
                     }
                 </mat-form-field>
                 <div>
-                    <button mat-flat-button type="submit">Confirm</button>
+                    <button mat-flat-button color="primary" type="submit">Confirm</button>
                     <button mat-flat-button type="button" class="cancelbutton" (click)="onClose()">Cancel</button>
                 </div>
             </form>
@@ -80,8 +80,8 @@
 
         <mat-tab label="Reviews">
             <div class="review">
-                @if(shoeReviews.length !== 0){
-                @for(review of shoeReviews;track review){
+                @if(productReviews.length !== 0){
+                @for(review of productReviews;track review){
                 <mat-card class="example-card" appearance="outlined">
                     <mat-card-header>
                         <mat-card-title>Review by : {{review.userName}}</mat-card-title>

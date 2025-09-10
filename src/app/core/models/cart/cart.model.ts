@@ -1,6 +1,6 @@
 import { CartItem } from "./cart.item.model"
 
-export interface Cart{
+export interface CartModel{
     userId : number
     items : CartItem[]
     totalAmount : number

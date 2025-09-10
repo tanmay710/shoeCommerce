@@ -2,8 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ProductService } from '../../../core/services/product/product.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ShoeModel } from '../../../core/models/product/product.model';
-import { ShoeCategory } from '../../../core/models/product-category/product.category.model';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInput } from "@angular/material/input";
 import { CategoriesService } from '../../../core/services/categories/categories.service';
@@ -11,6 +9,8 @@ import { MatSelectModule } from "@angular/material/select";
 import { MatButton, MatButtonModule } from "@angular/material/button";
 import { TitleCasePipe } from '@angular/common';
 import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
+import { ProductCategory } from '../../../core/models/product-category/product.category.model';
+import { ProductModel } from '../../../core/models/product/product.model';
 
 @Component({
   selector: 'app-shoe-add-update-form',
@@ -22,7 +22,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
   public mode: string = 'add'
   public shoeForm: FormGroup
   public shoeId: number
-  public categories: ShoeCategory[]
+  public categories: ProductCategory[]
   public isSubmit : boolean = false
   constructor(private productService: ProductService, private router: Router,
     private route: ActivatedRoute, private fb: FormBuilder, private categoriesService: CategoriesService,
@@ -31,7 +31,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
     this.shoeForm = this.fb.group({
       id: [''],
       name: ['', Validators.required],
-      category: ['', Validators.required],
+      categoryId: ['', Validators.required],
       description: ['', Validators.required],
       img_url: this.fb.array([]),
       inventory: ['', [Validators.required,Validators.min(1)]],
@@ -42,8 +42,10 @@ export class ShoeAddUpdateFormComponent implements OnInit {
   ngOnInit(): void {
     this.shoeId = +this.route.snapshot.paramMap.get('id')
     if (this.shoeId) {
-      const shoes: ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
+      const shoes: ProductModel[] = this.productService.getShoes()
       const updateShoe = shoes.find((p) => p.id === this.shoeId)
+      console.log(updateShoe);
+      
       this.shoeForm.patchValue(updateShoe)
       this.mode = 'update'
     }
@@ -68,20 +70,14 @@ export class ShoeAddUpdateFormComponent implements OnInit {
       if (this.mode === 'update') {
         console.log("update");
         
-        const categories: ShoeCategory[] = JSON.parse(localStorage.getItem('categories'))
-        const newCategory = categories.find((p) => p.name.trim().toLowerCase() === this.shoeForm.value.category.toLowerCase().trim())
          let imgUrls = this.shoeForm.value.img_url.filter((p)=> p.trim() !== "")
         if(imgUrls.length ===0){
-          let existingShoes: ShoeModel[] = this.productService.getShoes()
+          let existingShoes: ProductModel[] = this.productService.getShoes()
           let toUpdateShoe = existingShoes.find((p)=> p.id === this.shoeId)
-          let updateShoe: ShoeModel = {
+          let updateShoe: ProductModel = {
             id: this.shoeForm.value.id,
             name: this.shoeForm.value.name,
-            category: {
-              id: newCategory.id,
-              name: newCategory.name,
-              gst: newCategory.gst
-            },
+            categoryId: this.shoeForm.value.categoryId,
             inventory: this.shoeForm.value.inventory,
             cost: this.shoeForm.value.cost,
             img_url: toUpdateShoe.img_url,
@@ -92,14 +88,10 @@ export class ShoeAddUpdateFormComponent implements OnInit {
           this.router.navigate(['/shoelist'])
         }
         else {
-          let updateShoe: ShoeModel = {
+          let updateShoe: ProductModel = {
             id: this.shoeForm.value.id,
             name: this.shoeForm.value.name,
-            category: {
-              id: newCategory.id,
-              name: newCategory.name,
-              gst: newCategory.gst
-            },
+            categoryId: this.shoeForm.value.categoryId,
             inventory: this.shoeForm.value.inventory,
             cost: this.shoeForm.value.cost,
             img_url: this.shoeForm.value.img_url,
@@ -109,25 +101,20 @@ export class ShoeAddUpdateFormComponent implements OnInit {
         }
       }
       else {
-        const existingShoes: ShoeModel[] = this.productService.getShoes()
+        const existingShoes: ProductModel[] = this.productService.getShoes()
         let lastShoe = existingShoes[existingShoes.length-1]
         let lastIndex = lastShoe.id
-        const categories: ShoeCategory[] = JSON.parse(localStorage.getItem('categories'))
-        const newCategory = categories.find((p) => p.name.trim().toLowerCase() === this.shoeForm.value.category.toLowerCase().trim())
         let imgUrls = this.shoeForm.value.img_url.filter((p)=> p.trim() !== "")
         if(imgUrls.length ===0){
           this.snackbar.showError("image url missing")
+          this.snackbar.showSnackbar("image url missing", 'Error')
           return
         }
         else {
-          const addShoe: ShoeModel = {
+          const addShoe: ProductModel = {
             id: lastIndex +1,
             name: this.shoeForm.value.name,
-            category: {
-              id: newCategory.id,
-              name: newCategory.name,
-              gst: newCategory.gst
-            },
+            categoryId: this.shoeForm.value.categoryId ,
             inventory: +this.shoeForm.value.inventory,
             cost: +this.shoeForm.value.cost,
             img_url: this.shoeForm.value.img_url,

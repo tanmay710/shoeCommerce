@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
-import { ShoeModel } from '../../models/product/product.model';
-import { ShoeCategory } from '../../models/product-category/product.category.model';
+import { ProductModel } from '../../models/product/product.model';
 
 
 @Injectable({
@@ -8,15 +7,10 @@ import { ShoeCategory } from '../../models/product-category/product.category.mod
 })
 export class ProductService {
 
-  public baseProducts : ShoeModel[] = [{
+  public baseProducts : ProductModel[] = [{
     id: 1,
     name: 'jordans',
-    category: {
-      id: 1,
-      name: 'sport',
-      gst: 18
-    }
-  ,
+    categoryId: 1,
     inventory: 10,
     cost: 40000,
     img_url: [
@@ -28,11 +22,7 @@ export class ProductService {
   {
     id: 2,
     name: 'airforce',
-    category: {
-      id: 3,
-      name: 'casual',
-      gst: 18
-    },
+    categoryId: 3,
     inventory: 10,
     cost: 10000,
     img_url: [
@@ -44,11 +34,7 @@ export class ProductService {
   {
     id: 3,
     name: 'airmax',
-    category: {
-      id: 1,
-      name: 'sport',
-      gst: 18
-    },
+    categoryId: 1,
     inventory: 10,
     cost: 15000,
     img_url: [
@@ -60,11 +46,7 @@ export class ProductService {
   {
     id: 4,
     name: 'gucci',
-    category: {
-      id: 2,
-      name: 'formal',
-      gst: 18
-    },
+    categoryId: 2,
     inventory: 10,
     cost: 30000,
     img_url: [
@@ -76,11 +58,7 @@ export class ProductService {
   {
     id: 5,
     name: 'hushpuppies',
-    category: {
-      id: 2,
-      name: 'formal',
-      gst: 18
-    },
+    categoryId: 2,
     inventory: 10,
     cost: 6000,
     img_url: [
@@ -101,34 +79,34 @@ export class ProductService {
     return JSON.parse(localStorage.getItem('shoes'))
   }
 
-  public addShoe(shoe : ShoeModel){
-    let shoes : ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
-    shoes.push(shoe)
+  public addShoe(product : ProductModel){
+    let shoes : ProductModel[] = JSON.parse(localStorage.getItem('shoes'))
+    shoes.push(product)
     localStorage.setItem('shoes',JSON.stringify(shoes))
   }
 
-  public updateShoe(shoe : ShoeModel){
-    let shoes : ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
-    let updateShoeIndex = shoes.findIndex((p)=> p.id === shoe.id)
+  public updateShoe(product : ProductModel){
+    let shoes : ProductModel[] = JSON.parse(localStorage.getItem('shoes'))
+    let updateShoeIndex = shoes.findIndex((p)=> p.id === product.id)
     if(updateShoeIndex !== -1){
-      shoes[updateShoeIndex] ={...shoe}
+      shoes[updateShoeIndex] ={...product}
       localStorage.setItem('shoes',JSON.stringify(shoes))
     }
   }
 
   
-  public deleteShoe(shoe : ShoeModel){
-    let currentShoes:ShoeModel[] = JSON.parse(localStorage.getItem('shoes') || '[]')
-    let afterDeletedShoe = currentShoes.filter((p)=> p.id !== shoe.id)
+  public deleteShoe(product : ProductModel){
+    let currentShoes: ProductModel[] = JSON.parse(localStorage.getItem('shoes') || '[]')
+    let afterDeletedShoe = currentShoes.filter((p)=> p.id !== product.id)
       localStorage.setItem('shoes',JSON.stringify(afterDeletedShoe))
   }
 
-  public updateShoeCategory(category : ShoeCategory){
-    let allShoes : ShoeModel[] = this.getShoes()
-    let categoryShoes : ShoeModel[] = allShoes.filter((p)=> p.category.id === category.id)
-    for(let i = 0; i < categoryShoes.length; i++){
-      categoryShoes[i].category = {...category}
-      this.updateShoe(categoryShoes[i])
-    }
-  } 
+  // public updateShoeCategory(category : ShoeCategory){
+  //   let allShoes : ShoeModel[] = this.getShoes()
+  //   let categoryShoes : ShoeModel[] = allShoes.filter((p)=> p.category.id === category.id)
+  //   for(let i = 0; i < categoryShoes.length; i++){
+  //     categoryShoes[i].category = {...category}
+  //     this.updateShoe(categoryShoes[i])
+  //   }
+  // } 
 }

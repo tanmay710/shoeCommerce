@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
-import { ShoeCategory } from '../../models/product-category/product.category.model';
+import { ProductCategory } from '../../models/product-category/product.category.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CategoriesService {
 
-  public baseProducts : ShoeCategory[] = [{
+  public baseProducts : ProductCategory[] = [{
     id: 1,
     name: 'sport',
     gst: 18
@@ -32,14 +32,14 @@ export class CategoriesService {
     return JSON.parse(localStorage.getItem('categories'))
   }
 
-  public addCategory(category : ShoeCategory){
-    let existingCategory : ShoeCategory[] = this.getCategories()
+  public addCategory(category : ProductCategory){
+    let existingCategory : ProductCategory[] = this.getCategories()
     existingCategory.push(category)
     localStorage.setItem('categories',JSON.stringify(existingCategory))
   }
 
-  public updateCategory(category : ShoeCategory){
-    let existingCategory : ShoeCategory[] = this.getCategories()
+  public updateCategory(category : ProductCategory){
+    let existingCategory : ProductCategory[] = this.getCategories()
     let index = existingCategory.findIndex((p)=> p.id === category.id)
     existingCategory[index] = {...category}
     localStorage.setItem('categories',JSON.stringify(existingCategory))

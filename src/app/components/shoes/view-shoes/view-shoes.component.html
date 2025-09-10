@@ -1,6 +1,6 @@
 <div class="container">
     <div>
-        <h2>Shoes List</h2>
+        <h2>products List</h2>
 
         
         <div class="row">
@@ -8,13 +8,13 @@
                 <div>
                     <mat-form-field class="filterbased">
                         <mat-label>Search by Product name</mat-label>
-                        <input matInput placeholder="Search by type" [(ngModel)]="search" (input)="applySearchFilter()">
+                        <input matInput placeholder="Search by type" [(ngModel)]="search" (input)="applyFilter()">
                     </mat-form-field>
                 </div>
                 <div>
                     <mat-form-field class="filterbased">
                         <mat-label>Filter by category</mat-label>
-                        <mat-select #myMatSelect (selectionChange)="applyCategoryFilter()" [(ngModel)]="selectedCategory">
+                        <mat-select #myMatSelect (selectionChange)="applyFilter()" [(ngModel)]="selectedCategory">
                             <mat-option [value]="'none'">None</mat-option>
                             @for (category of categories; track category) {
                             <mat-option [value]="category.name">{{category.name | titlecase }}</mat-option>
@@ -25,7 +25,7 @@
                 <div>
                     <mat-form-field class="filterbased">
                         <mat-label>Filter by Stock</mat-label>
-                        <mat-select  (selectionChange)="applyStockFilter()" [(ngModel)]="selectedStatus">
+                        <mat-select  (selectionChange)="applyFilter()" [(ngModel)]="selectedStatus">
                             <mat-option [value]="'all'">All</mat-option>
                             <mat-option [value]="'instock'">In stock</mat-option>
                             <mat-option [value]="'outofstock'">Out of stock</mat-option>
@@ -34,40 +34,40 @@
                 </div>
             </div>
             <span class="example-spacer"></span>
-            <button mat-flat-button type="button" (click)="onClick()" color="primary" class="addbutton"><mat-icon>add</mat-icon>Add Shoe</button>
+            <button mat-flat-button type="button" (click)="onClick()" color="primary" class="addbutton"><mat-icon>add</mat-icon>Add product</button>
         </div>
         
-        <table mat-table [dataSource]="dataSource" class="mat-elevation-z8" matSort>
+        <table mat-table [dataSource]="productDataSource" class="mat-elevation-z8" matSort>
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
-                <td mat-cell *matCellDef="let shoe"> {{shoe.name | titlecase }} </td>
+                <td mat-cell *matCellDef="let product"> {{product.name | titlecase }} </td>
             </ng-container>
             <ng-container matColumnDef="category">
                 <th mat-header-cell *matHeaderCellDef class=""> Category</th>
-                <td mat-cell *matCellDef="let shoe">
-                    {{shoe.category.name | titlecase}}
+                <td mat-cell *matCellDef="let product">
+                    {{product.category.name | titlecase}}
                 </td>
             </ng-container>
             <ng-container matColumnDef="inventory">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Inventory Quantity </th>
-                <td mat-cell *matCellDef="let shoe"> {{shoe.inventory}} </td>
+                <td mat-cell *matCellDef="let product"> {{product.inventory}} </td>
             </ng-container>
             <ng-container matColumnDef="cost">
                 <th mat-header-cell *matHeaderCellDef mat-sort-header> Cost </th>
-                <td mat-cell *matCellDef="let shoe"> {{shoe.cost}} </td>
+                <td mat-cell *matCellDef="let product"> {{product.cost}} </td>
             </ng-container>
             <ng-container matColumnDef="details">
                 <th mat-header-cell *matHeaderCellDef> Details </th>
-                <td mat-cell *matCellDef="let shoe">
-                    <button mat-flat-button (click)="onDetails(shoe)" color="primary">Details</button>
+                <td mat-cell *matCellDef="let product">
+                    <button mat-flat-button (click)="onDetails(product)" color="primary">Details</button>
                 </td>
             </ng-container>
             <ng-container matColumnDef="actions">
                 <th mat-header-cell *matHeaderCellDef>Actions </th>
-                <td mat-cell *matCellDef="let shoe">
-                    <button mat-fab (click)="onUpdate(shoe)"
+                <td mat-cell *matCellDef="let product">
+                    <button mat-fab (click)="onUpdate(product)"
                         class="actionicon"><mat-icon class="editicon">edit</mat-icon></button>
-                    <button mat-fab color="warn" (click)="onDelete(shoe)"
+                    <button mat-fab color="warn" (click)="onDelete(product)"
                         class="actionicon">
                         <mat-icon>delete</mat-icon>
                     </button>

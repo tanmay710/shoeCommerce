@@ -5,17 +5,18 @@ import { MatSort, MatSortModule } from '@angular/material/sort';
 import { MatButtonModule } from '@angular/material/button';
 import { TitleCasePipe } from '@angular/common';
 import { Router } from '@angular/router';
-import { ShoeModel } from '../../../core/models/product/product.model';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatRadioModule } from '@angular/material/radio';
-import { ShoeCategory } from '../../../core/models/product-category/product.category.model';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelect, MatSelectChange, MatSelectModule } from '@angular/material/select';
 import { MatPaginator, MatPaginatorModule } from '@angular/material/paginator';
 import { MatDialog } from '@angular/material/dialog';
+import { ProductModel } from '../../../core/models/product/product.model';
+import { ProductCategory } from '../../../core/models/product-category/product.category.model';
+import { ProductShowModel } from '../../../core/models/product/product-show.model';
 
 @Component({
   selector: 'app-view-shoes',
@@ -27,13 +28,15 @@ import { MatDialog } from '@angular/material/dialog';
 })
 export class ViewShoesComponent implements OnInit, AfterViewInit {
 
-  public shoes: ShoeModel[]
-  public categories: ShoeCategory[]
+  public product: ProductModel[]
+  public categories: ProductCategory[]
+  public productDisplay: ProductShowModel[]
+
   public displayDropDown: DropDown[]
-  public dataSource: MatTableDataSource<ShoeModel> = new MatTableDataSource([])
-  public filteredDataSource: ShoeModel[]
-  public searchDataSource: ShoeModel[]
-  public stockDataSource: ShoeModel[]
+  public productDataSource: MatTableDataSource<ProductShowModel> = new MatTableDataSource([])
+  public filteredDataSource: ProductModel[]
+  public searchDataSource: ProductModel[]
+  public stockDataSource: ProductModel[]
   public displayedColumns: string[] = ['name', 'category', 'inventory', 'cost', 'details', 'actions']
   public search: string = ''
   public selectedCategory: string;
@@ -49,32 +52,54 @@ export class ViewShoesComponent implements OnInit, AfterViewInit {
     private categoriesService: CategoriesService, private dialog: MatDialog) { }
 
   ngOnInit(): void {
-    this.shoes = this.productService.getShoes()
-    this.filteredDataSource = this.shoes
-    this.searchDataSource = this.shoes;
-    this.dataSource.data = this.shoes
+    this.product = this.productService.getShoes()
     this.categories = this.categoriesService.getCategories()
+    this.productDisplay = this.product.map((p) => {
+      let category = this.categories.find((c)=> p.categoryId === c.id)
+      return {
+        id: p.id,
+        name: p.name,
+        category: category,
+        inventory: p.inventory,
+        cost: p.cost,
+        img_url: p.img_url,
+        description: p.description
+      }
+    })
+    this.productDataSource.data = this.productDisplay
   }
 
   ngAfterViewInit(): void {
-    this.dataSource.sort = this.sort
-    this.dataSource.paginator = this.paginator
+    this.productDataSource.sort = this.sort
+    this.productDataSource.paginator = this.paginator
   }
 
-  public onDetails(shoe: ShoeModel) {
-    this.router.navigate([`/shoe-details/${shoe.id}`])
+  public onDetails(product: ProductModel) {
+    this.router.navigate([`/shoe-details/${product.id}`])
   }
 
-  public onUpdate(shoe: ShoeModel) {
-    this.router.navigate([`/shoe/update/${shoe.id}`])
+  public onUpdate(product: ProductModel) {
+    this.router.navigate([`/shoe/update/${product.id}`])
   }
 
-  public onDelete(shoe: ShoeModel) {
+  public onDelete(product: ProductModel) {  
     const confirmation = confirm("Are you sure you want to delete this")
     if (confirmation) {
-      this.productService.deleteShoe(shoe)
-      this.shoes = this.productService.getShoes()
-      this.dataSource = new MatTableDataSource(this.shoes)
+      this.productService.deleteShoe(product)
+      this.product = this.productService.getShoes()
+      this.productDisplay = this.product.map((p) => {
+      let category = this.categories.find((c)=> p.categoryId === c.id)
+      return {
+        id: p.id,
+        name: p.name,
+        category: category,
+        inventory: p.inventory,
+        cost: p.cost,
+        img_url: p.img_url,
+        description: p.description
+      }
+    })
+    this.productDataSource.data = this.productDisplay
     }
   }
 
@@ -82,47 +107,23 @@ export class ViewShoesComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/shoe/add'])
   }
 
-  public applyCategoryFilter() {
-    if (this.selectedCategory !== 'none') {
-      this.searchDataSource = this.searchDataSource.filter((p) => p.category.name === this.selectedCategory)
-      this.dataSource.data = this.searchDataSource
+  public applyFilter() {
+    let tempData: ProductShowModel[] = [...this.productDisplay];
+    tempData = this.productDisplay.filter((p) => p.name.toLowerCase().trim().includes(this.search.toLowerCase().trim()))
+
+    if (this.selectedCategory && this.selectedCategory !== 'none') {
+      tempData = tempData.filter((p) => p.category.name === this.selectedCategory)
     }
-    else {
-      this.applySearchFilter()
+    if (this.selectedStatus && this.selectedStatus !== 'all') {
+      if (this.selectedStatus === 'instock') {
+        tempData = tempData.filter((p) => p.inventory > 0)
+      }
+      else {
+        tempData = tempData.filter((p) => p.inventory === 0)
+      }
     }
+    this.productDataSource.data = tempData
   }
-
-  public applyStockFilter() {
-    if (this.selectedStatus !== 'all') {
-      this.searchDataSource = this.searchDataSource.filter((p) => p.category.name === this.selectedCategory)
-      this.dataSource.data = this.searchDataSource
-    }
-    else {
-      this.applySearchFilter()
-    }
-  }
-
-  public applySearchFilter() {
-    this.searchDataSource = this.shoes.filter((p) => p.name.toLowerCase().trim().includes(this.search.toLowerCase().trim()))
-    this.dataSource.data = this.searchDataSource
-  }
-  // let tempData: ShoeModel[] = [...this.shoes];
-  // tempData = this.shoes.filter((p) => p.name.toLowerCase().trim().includes(this.search.toLowerCase().trim()))
-
-  // if (this.selectedCategory && this.selectedCategory !== 'none') {
-  //   tempData = tempData.filter((p) => p.category.name === this.selectedCategory)
-  // }
-  // if (this.selectedStatus && this.selectedStatus !== 'all') {
-  //   if (this.selectedStatus === 'instock') {
-  //     tempData = tempData.filter((p) => p.inventory > 0)
-  //   }
-  //   else {
-  //     tempData = tempData.filter((p) => p.inventory === 0)
-  //   }
-  // }
-  // this.dataSource.data = tempData 
-
-
 }
 
 interface DropDown {

@@ -1,9 +1,8 @@
-import { ShoeCategory } from "../product-category/product.category.model"
 
-export interface ShoeModel{
+export interface ProductModel{
     id : number
     name : string
-    category : ShoeCategory
+    categoryId : number
     inventory : number
     cost : number
     img_url : string[]

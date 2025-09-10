@@ -32,10 +32,10 @@
     </mat-card> -->
     <h2>Order ID : {{order.orderId}}</h2>
     <h4>Order Date : {{order.orderDate}}</h4>
-    <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <table mat-table [dataSource]="OrderDetailsDataSource" class="mat-elevation-z8">
         <ng-container matColumnDef="name">
             <th mat-header-cell *matHeaderCellDef> Name </th>
-            <td mat-cell *matCellDef="let item"> {{item.name |titlecase}} </td>
+            <td mat-cell *matCellDef="let item"> {{item.productName |titlecase}} </td>
         </ng-container>
         <ng-container matColumnDef="priceperpiece">
             <th mat-header-cell *matHeaderCellDef> Cost for 1 item </th>

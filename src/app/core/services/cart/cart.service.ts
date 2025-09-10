@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { Cart } from '../../models/cart/cart.model';
+import { CartModel } from '../../models/cart/cart.model';
 import { CartItem } from '../../models/cart/cart.item.model';
 import { UserModel } from '../../models/user/user.model';
 import { BehaviorSubject } from 'rxjs';
+import { UserService } from '../user/user.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,60 +12,81 @@ export class CartService {
 
   private cartSize = new BehaviorSubject<number>(0)
   public cartSize$ = this.cartSize.asObservable()
-  constructor() {
-    let cart = JSON.parse(localStorage.getItem('cart'))
+  public currentUser: UserModel
+  public userId: number
+  constructor(private userService: UserService) {
+    this.currentUser = userService.getCurrentUser()
+    this.userId = this.currentUser.id
+    let allCarts: CartModel[] = JSON.parse(localStorage.getItem('carts'))
+    let cart = this.getUserCart()
     this.cartSize.next(cart?.items.length)
   }
 
   public getCart() {
-    let cart = JSON.parse(localStorage.getItem('cart'))
+    let cart = JSON.parse(localStorage.getItem('carts')) || []
     return cart
   }
 
-  public addCartItem(cart: Cart, cartItem: CartItem) {
+  public getUserCart() {
+    let currentUser: UserModel = this.userService.getCurrentUser()
+    let allCarts: CartModel[] = this.getCart()
+    let userCart: CartModel = allCarts.find((p) => p.userId === currentUser.id)
+    return userCart
+  }
 
-    const existingCart: Cart = JSON.parse(localStorage.getItem('cart'))
+  public addCartItem(cart: CartModel, cartItem: CartItem) {
+
+    const existingCart: CartModel = this.getUserCart()
+    let allCarts: CartModel[] = this.getCart()
     if (existingCart) {
       existingCart.items.push(cartItem)
       existingCart.totalAmount = existingCart.items.reduce((sum, item) => sum + item.totalcost, 0)
-      localStorage.setItem('cart', JSON.stringify(existingCart))
+      let index = allCarts.findIndex((p) => p.userId === existingCart.userId)
+      allCarts[index] = existingCart
+      localStorage.setItem('carts', JSON.stringify(allCarts))
       this.cartSize.next(existingCart.items.length)
     }
     else {
-      localStorage.setItem('cart', JSON.stringify(cart))
+      allCarts.push(cart)
+      localStorage.setItem('carts', JSON.stringify(allCarts))
       this.cartSize.next(cart.items.length)
     }
-
   }
 
   public updateCartItem(cartItem: CartItem) {
-    const existingCart: Cart = JSON.parse(localStorage.getItem('cart'))
+    const existingCart: CartModel = this.getUserCart()
+    let allCarts : CartModel[] = this.getCart()
+    let index = allCarts.findIndex((p)=> p.userId === existingCart.userId)
     let itemId = existingCart.items.findIndex((p) => p.productId === cartItem.productId)
-    if (itemId !== -1) {
-      existingCart.items[itemId] = { ...cartItem }
-      existingCart.totalAmount = existingCart.items.reduce((sum, item) => sum + item.totalcost, 0)
-      localStorage.setItem('cart', JSON.stringify(existingCart))
-    }
+    existingCart.items[itemId] = { ...cartItem }
+    existingCart.totalAmount = existingCart.items.reduce((sum, item) => sum + item.totalcost, 0)
+    allCarts[index] = existingCart
+    localStorage.setItem('carts', JSON.stringify(allCarts))
+
   }
 
   public removeCartItem(cartItem: CartItem) {
-    const existingCart: Cart = JSON.parse(localStorage.getItem('cart'))
-    let itemId = existingCart.items.findIndex((p) => p.productId === cartItem.productId)
+    let existingCart: CartModel = this.getUserCart()
+    let allCarts: CartModel[] = this.getCart()
     let newcartItems: CartItem[] = existingCart.items.filter((p) => p.productId !== cartItem.productId)
     existingCart.items = [...newcartItems]
     existingCart.totalAmount = existingCart.items.reduce((sum, item) => sum + item.totalcost, 0)
     if (existingCart.items.length === 0) {
-      localStorage.removeItem('cart')
+      allCarts = allCarts.filter((p) => p.userId !== existingCart.userId)
+      localStorage.setItem('carts', JSON.stringify(allCarts))
     }
     else {
-      localStorage.setItem('cart', JSON.stringify(existingCart))
+      let index = allCarts.findIndex((p) => p.userId === existingCart.userId)
+      allCarts[index] = { ...existingCart }
+      localStorage.setItem('carts', JSON.stringify(allCarts))
     }
     this.cartSize.next(existingCart.items.length)
   }
 
   public removeCart() {
-    const existingCart: Cart = JSON.parse(localStorage.getItem('cart'))
-    localStorage.removeItem('cart')
-    this.cartSize.next(existingCart?.items.length)
+    let allCarts : CartModel[] = this.getCart()
+    allCarts = allCarts.filter((p)=> p.userId !== this.userId)
+    localStorage.setItem('carts',JSON.stringify(allCarts))
+    this.cartSize.next(0)
   }
 }

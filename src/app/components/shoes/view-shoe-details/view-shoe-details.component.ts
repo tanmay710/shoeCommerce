@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { ShoeModel } from '../../../core/models/product/product.model';
 import { ProductService } from '../../../core/services/product/product.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe, NgOptimizedImage, TitleCasePipe } from '@angular/common';
@@ -8,7 +7,7 @@ import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from '@angular/material/input';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
 import { CartItem } from '../../../core/models/cart/cart.item.model';
-import { Cart } from '../../../core/models/cart/cart.model';
+import { CartModel } from '../../../core/models/cart/cart.model';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -19,132 +18,158 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ReviewDialogComponent } from '../../review-dialog/review-dialog.component';
 import { NgxStarRatingModule } from 'ngx-star-rating';
- import { NgxStarsModule } from 'ngx-stars';
+import { NgxStarsModule } from 'ngx-stars';
 import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
 import { UserService } from '../../../core/services/user/user.service';
+import { ProductModel } from '../../../core/models/product/product.model';
+import { ProductCategory } from '../../../core/models/product-category/product.category.model';
+import { ProductShowModel } from '../../../core/models/product/product-show.model';
+import { CategoriesService } from '../../../core/services/categories/categories.service';
+import { ReviewShowModel } from '../../../core/models/review/review-show';
 @Component({
   selector: 'app-view-shoe-details',
   imports: [TitleCasePipe, MatButtonModule,
     MatFormFieldModule, MatInputModule, FormsModule,
     ReactiveFormsModule, MatCardModule, MatTabsModule, DatePipe,
-    MatIconModule,NgxStarsModule],
+    MatIconModule, NgxStarsModule],
   templateUrl: './view-shoe-details.component.html',
   styleUrl: './view-shoe-details.component.scss'
 })
 export class ViewShoeDetailsComponent implements OnInit {
 
-  public shoe: ShoeModel
-  public shoeId: number
+  public product: ProductModel
+  public productShow: ProductShowModel
+  public productId: number
   public clicked: boolean = false
   public quantForm: FormGroup
   public isDisabled: boolean = true
   public submitted: boolean = false
-  public categoryShoes: ShoeModel[]
+  public categoryShoes: ProductModel[]
+  public category: ProductCategory
   public categoryId: number
-  public shoeReviews: ReviewModel[]
+  public productReviews: ReviewShowModel[]
   public userId: number
 
   constructor(private productService: ProductService, private route: ActivatedRoute,
     private fb: FormBuilder, private cartService: CartService, private router: Router,
-    private userService : UserService,
-    private reviewService: ReviewService, private dialog: MatDialog,private snackbar : SnackbarService
+    private userService: UserService,
+    private categoryService: CategoriesService,
+    private reviewService: ReviewService, private dialog: MatDialog, private snackbar: SnackbarService
   ) {
-    this.shoeId = +this.route.snapshot.paramMap.get('id')
-    let allShoes : ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
-    let exShoe : ShoeModel = allShoes.find((p) => p.id === this.shoeId)
+    this.productId = +this.route.snapshot.paramMap.get('id')
+    let allShoes: ProductModel[] = productService.getShoes()
+    let exShoe: ProductModel = allShoes.find((p) => p.id === this.productId)
     this.quantForm = this.fb.group({
-      quantity: ['', [Validators.required,Validators.max(exShoe.inventory),Validators.min(1)]]
+      quantity: ['', [Validators.required, Validators.max(exShoe.inventory), Validators.min(1)]]
     })
   }
 
   ngOnInit(): void {
-    
-    const shoes: ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
-    this.shoe = shoes.find((p) => p.id === this.shoeId)
-    this.categoryId = this.shoe.category.id
-    this.categoryShoes = shoes.filter((p) => p.category.id === this.categoryId && p.id !== this.shoeId)
+
+    const products: ProductModel[] = this.productService.getShoes()
+    this.product = products.find((p) => p.id === this.productId)
+    this.categoryId = this.product.categoryId
+    let categories: ProductCategory[] = this.categoryService.getCategories()
+    this.category = categories.find((p) => p.id === this.product.categoryId)
+
+    this.categoryShoes = products.filter((p) => p.categoryId === this.categoryId && p.id !== this.productId)
     let allReviews = this.reviewService.getAllReviews()
-    let thisShoeReviews = allReviews.filter((p) => p.productId === this.shoeId)
-    this.shoeReviews = thisShoeReviews
+    let productReviews: ReviewModel[] = allReviews.filter((p) => p.productId === this.productId)
+    this.productReviews = productReviews.map((p) => {
+      let users: UserModel[]
+      this.userService.getUsers().subscribe((data) => {
+        users = data
+      })
+      let user: UserModel = users.find((u) => p.userId === u.id)
+      return {
+        id: p.id,
+        rating: p.rating,
+        comment: p.comment,
+        productId: p.productId,
+        userId: p.userId,
+        userName: user.name,
+        date: p.date
+      }
+    }
+    )
     let currUser: UserModel = this.userService.getCurrentUser()
     this.userId = currUser.id
+    this.productShow = {
+      id: this.productId,
+      name: this.product.name,
+      category: this.category,
+      inventory: this.product.inventory,
+      cost: this.product.cost,
+      img_url: this.product.img_url,
+      description: this.product.description
+    }
   }
 
   public addToCart() {
-    if (this.shoe.inventory !== 0) {
+    if (this.product.inventory !== 0) {
       this.clicked = true
     }
     else {
-      
+
       this.snackbar.showError("The product is currently out of stock, please select different product")
     }
   }
 
   public onSubmit() {
     if (this.quantForm.valid) {
-      if (this.quantForm.value.quantity <= this.shoe.inventory) {
-        let existingCart: Cart = JSON.parse(localStorage.getItem('cart'))
-       
-        if (existingCart) {
-          let prod: CartItem = existingCart.items.find((p) => p.productId === this.shoeId)
-          if (prod) {
-            let totQuantity = prod.quantity + this.quantForm.value.quantity
-            if (totQuantity > this.shoe.inventory) {
-              this.snackbar.showError(`Not enough quantity in inventory, max you can buy is ${this.shoe.inventory}`)
-            }
-            else {
-              prod.quantity = totQuantity
-            }
-            this.cartService.updateCartItem(prod)
+      let userCart: CartModel = this.cartService.getUserCart()
+      if (userCart) {
+        let prod: CartItem = userCart.items.find((p) => p.productId === this.productId)
+        if (prod) {
+          let totQuantity = prod.quantity + this.quantForm.value.quantity
+          if (totQuantity > this.product.inventory) {
+            this.snackbar.showError(`Not enough quantity in inventory, max you can buy is ${this.product.inventory}`)
           }
           else {
-            let totcost = (this.shoe.cost * this.quantForm.value.quantity * (this.shoe.category.gst/100)) + this.shoe.cost * this.quantForm.value.quantity
-            let cartItem: CartItem = {
-              productId: this.shoeId,
-              name: this.shoe.name,
-              cost: this.shoe.cost,
-              quantity: this.quantForm.value.quantity,
-              gst: this.shoe.category.gst,
-              totalcost: totcost
-            }
-            let newCart: Cart = {
-              userId: 0,
-              items: [],
-              totalAmount: 0
-            }
-            let user = this.userService.getCurrentUser()
-            newCart.userId = user.id
-            newCart.items.push(cartItem)
-            newCart.totalAmount = newCart.items.reduce((sum, item) => sum + item.totalcost, 0)
-            this.cartService.addCartItem(newCart, cartItem)
+            prod.quantity = totQuantity
           }
+          this.cartService.updateCartItem(prod)
         }
         else {
-          let totcost = (this.shoe.cost * this.quantForm.value.quantity * (this.shoe.category.gst/100)) + this.shoe.cost * this.quantForm.value.quantity
+          let totCost = (this.product.cost * this.quantForm.value.quantity * (this.category.gst / 100)) + this.product.cost * this.quantForm.value.quantity
           let cartItem: CartItem = {
-            productId: this.shoeId,
-            name: this.shoe.name,
-            cost: this.shoe.cost,
+            productId: this.productId,
             quantity: this.quantForm.value.quantity,
-            gst: this.shoe.category.gst,
-            totalcost: totcost
+            totalcost: totCost
           }
-
-          let newCart: Cart = {
-            userId: 0,
+          let newCart: CartModel = {
+            userId: this.userId,
             items: [],
             totalAmount: 0
           }
-          let user = this.userService.getCurrentUser()
-          newCart.userId = user.id
           newCart.items.push(cartItem)
           newCart.totalAmount = newCart.items.reduce((sum, item) => sum + item.totalcost, 0)
           this.cartService.addCartItem(newCart, cartItem)
         }
-        this.snackbar.showSuccess("successfully added to cart")
-        this.router.navigate(['/checkout'])
-        this.quantForm.reset()
-      } 
+      }
+      else {
+        let totCost = (this.product.cost * this.quantForm.value.quantity * (this.category.gst / 100)) + this.product.cost * this.quantForm.value.quantity
+        let cartItem: CartItem = {
+          productId: this.productId,
+          quantity: this.quantForm.value.quantity,
+          totalcost: totCost
+        }
+        console.log(totCost);
+        console.log(this.category.gst);
+        console.log((this.product.cost * this.quantForm.value.quantity * (this.category.gst / 100)));
+
+        let newCart: CartModel = {
+          userId: this.userId,
+          items: [],
+          totalAmount: 0
+        }
+        newCart.items.push(cartItem)
+        newCart.totalAmount = totCost
+        this.cartService.addCartItem(newCart, cartItem)
+      }
+      this.snackbar.showSuccess("successfully added to cart")
+      this.router.navigate(['/checkout'])
+      this.quantForm.reset()
     }
   }
 
@@ -167,11 +192,27 @@ export class ViewShoeDetailsComponent implements OnInit {
   }
 
   public onEdit(review: ReviewModel) {
-    const dialogref = this.dialog.open(ReviewDialogComponent, { data: { productId: this.shoeId, mode: 'update', existingReview: review } })
+    const dialogref = this.dialog.open(ReviewDialogComponent, { data: { productId: this.productId, mode: 'update', existingReview: review } })
     dialogref.afterClosed().subscribe(result => {
       let allReviews = this.reviewService.getAllReviews()
-      let thisShoeReviews = allReviews.filter((p) => p.productId === this.shoeId)
-      this.shoeReviews = thisShoeReviews
+      let thisShoeReviews = allReviews.filter((p) => p.productId === this.productId)
+      this.productReviews = thisShoeReviews.map((p) => {
+        let users: UserModel[]
+        this.userService.getUsers().subscribe((data) => {
+          users = data
+        })
+        let user: UserModel = users.find((u) => p.userId === u.id)
+        return {
+          id: p.id,
+          rating: p.rating,
+          comment: p.comment,
+          productId: p.productId,
+          userId: p.userId,
+          userName: user.name,
+          date: p.date
+        }
+      }
+      )
     })
 
   }
@@ -181,8 +222,24 @@ export class ViewShoeDetailsComponent implements OnInit {
     if (confirmation) {
       this.reviewService.deleteReview(review)
       let allReviews = this.reviewService.getAllReviews()
-      let thisShoeReviews = allReviews.filter((p) => p.productId === this.shoeId)
-      this.shoeReviews = thisShoeReviews
+      let thisShoeReviews = allReviews.filter((p) => p.productId === this.productId)
+      this.productReviews = thisShoeReviews.map((p) => {
+      let users : UserModel[]  
+      this.userService.getUsers().subscribe((data)=>{
+        users = data
+      })
+      let user : UserModel = users.find((u)=> p.userId === u.id)
+      return {
+        id: p.id,
+        rating: p.rating,
+        comment: p.comment,
+        productId: p.productId,
+        userId: p.userId,
+        userName: user.name,
+        date: p.date
+      }
+    }
+    )
     }
   }
 }

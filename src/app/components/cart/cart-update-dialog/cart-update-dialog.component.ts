@@ -14,10 +14,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CartService } from '../../../core/services/cart/cart.service';
-import { ShoeModel } from '../../../core/models/product/product.model';
 import { CartItem } from '../../../core/models/cart/cart.item.model';
 import { ProductService } from '../../../core/services/product/product.service';
 import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
+import { ProductModel } from '../../../core/models/product/product.model';
+import { ProductCategory } from '../../../core/models/product-category/product.category.model';
+import { CategoriesService } from '../../../core/services/categories/categories.service';
 @Component({
   selector: 'app-cart-update-dialog',
   imports: [ReactiveFormsModule, MatButtonModule, MatSelectModule, MatInputModule,
@@ -28,10 +30,12 @@ import { SnackbarService } from '../../../shared/services/snackbar/snackbar.serv
 export class CartUpdateDialogComponent implements OnInit {
   updateForm: FormGroup
   public cartItem: CartItem
-  public shoe: ShoeModel
-  
-  constructor(private fb: FormBuilder, private cartService: CartService,private snackbar : SnackbarService ,
+  public categories : ProductCategory[]
+  public product: ProductModel
+
+  constructor(private fb: FormBuilder, private cartService: CartService, private snackbar: SnackbarService,
     private productService: ProductService,
+    private categoryService : CategoriesService,
     private dialogRef: MatDialogRef<CartUpdateDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { cartItem: CartItem }
   ) {
@@ -43,44 +47,27 @@ export class CartUpdateDialogComponent implements OnInit {
 
   ngOnInit(): void {
     this.updateForm.patchValue(this.cartItem)
-    const shoes: ShoeModel[] = JSON.parse(localStorage.getItem('shoes'))
-    this.shoe = shoes.find((p) => p.id === this.cartItem.productId)
+    const products: ProductModel[] = this.productService.getShoes()
+    this.product = products.find((p) => p.id === this.cartItem.productId)
+    this.categories = this.categoryService.getCategories()
   }
 
   public onSubmit() {
     if (this.updateForm.valid) {
-      if (this.updateForm.value.quantity <= this.shoe.inventory) {
+      if (this.updateForm.value.quantity <= this.product.inventory) {
         let newCartItem: CartItem = { ...this.cartItem }
-        let totcost = (this.shoe.cost * this.updateForm.value.quantity * (this.shoe.category.gst/100)) + this.shoe.cost * this.updateForm.value.quantity
+        let category : ProductCategory = this.categories.find((p)=> p.id === this.product.categoryId)
+        let totcost = (this.product.cost * this.updateForm.value.quantity * (category.gst / 100)) + this.product.cost * this.updateForm.value.quantity
         newCartItem.quantity = this.updateForm.value.quantity
         newCartItem.totalcost = totcost
         this.cartService.updateCartItem(newCartItem)
         this.dialogRef.close()
-        let quant : number
-        if(this.updateForm.value.quantity > this.cartItem.quantity){
-          let newQ = this.updateForm.value.quantity - this.cartItem.quantity
-          quant = this.shoe.inventory - newQ
-        }
-        else{
-          let newQ = this.cartItem.quantity - this.updateForm.value.quantity
-          quant = this.shoe.inventory + newQ
-        }
-        let newShoe: ShoeModel = {
-          id: this.shoe.id,
-          name: this.shoe.name,
-          category: this.shoe.category,
-          inventory: quant,
-          cost: this.shoe.cost,
-          img_url: this.shoe.img_url,
-          description: this.shoe.description
-        }
-        this.productService.updateShoe(newShoe)
         this.snackbar.showSuccess("successfully updated the item")
       }
-      else{
-        this.snackbar.showError(`Not enough quantity in inventory,max(${this.shoe.inventory})`)
+      else {
+        this.snackbar.showError(`Not enough quantity in inventory,max(${this.product.inventory})`)
       }
-    } 
+    }
   }
 
   public onClose() {

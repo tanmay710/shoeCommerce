@@ -7,4 +7,5 @@ export interface ProductModel{
     cost : number
     img_url : string[]
     description : string
+    discount : number
 }

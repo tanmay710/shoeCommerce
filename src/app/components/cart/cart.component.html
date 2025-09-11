@@ -13,7 +13,7 @@
             </ng-container>
             <ng-container matColumnDef="cost">
                 <th mat-header-cell *matHeaderCellDef>Cost per Piece </th>
-                <td mat-cell *matCellDef="let product"> {{product.cost}} </td>
+                <td mat-cell *matCellDef="let product"> {{product.productCost}} </td>
             </ng-container>
             <ng-container matColumnDef="changequantity">
                 <th mat-header-cell *matHeaderCellDef>Change Quantity</th>
@@ -23,15 +23,27 @@
             </ng-container>
             <ng-container matColumnDef="totalcost">
                 <th mat-header-cell *matHeaderCellDef>Total Cost before GST</th>
-                <td mat-cell *matCellDef="let product"> {{product.cost * product.quantity}} </td>
-            </ng-container>            
+                <td mat-cell *matCellDef="let product"> {{product.productCost * product.quantity}} </td>
+            </ng-container>
+            <ng-container matColumnDef="discount">
+                <th mat-header-cell *matHeaderCellDef>Discount %</th>
+                <td mat-cell *matCellDef="let product"> {{product.productDiscount}} </td>
+            </ng-container>  
+            <ng-container matColumnDef="discountPrice">
+                <th mat-header-cell *matHeaderCellDef>Discount Price</th>
+                <td mat-cell *matCellDef="let product"> {{product.productCost* (product.productDiscount/100) * product.quantity}}</td>
+            </ng-container>  
+            <ng-container matColumnDef="afterDiscount">
+                <th mat-header-cell *matHeaderCellDef>After Discount</th>
+                <td mat-cell *matCellDef="let product"> {{(product.productCost * product.quantity) - product.productCost* (product.productDiscount/100) * product.quantity}}</td>
+            </ng-container>          
             <ng-container matColumnDef="gst">
                 <th mat-header-cell *matHeaderCellDef>GST%</th>
                 <td mat-cell *matCellDef="let product"> {{product.gst}} </td>
             </ng-container>
             <ng-container matColumnDef="categorygst">
                 <th mat-header-cell *matHeaderCellDef>GST</th>
-                <td mat-cell *matCellDef="let product"> {{(product.cost * product.quantity)*(product.gst/100)}} </td>
+                <td mat-cell *matCellDef="let product"> {{((product.productCost * product.quantity) - product.productCost* (product.productDiscount/100) * product.quantity)*(product.gst/100)}} </td>
             </ng-container>
             <ng-container matColumnDef="totalcostgst">
                 <th mat-header-cell *matHeaderCellDef>Total Cost after GST</th>
@@ -50,7 +62,7 @@
             <h3>Total cost :{{userCart.totalAmount}}</h3>
         </div>
         <div>
-            <button mat-flat-button type="button" (click)="onConfirm()">Confirm Order</button>
+            <button mat-flat-button type="button" color="primary" (click)="onConfirm()">Confirm Order</button>
         </div>
         }
         @else {

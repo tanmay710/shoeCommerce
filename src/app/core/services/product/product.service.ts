@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ProductModel } from '../../models/product/product.model';
+import { CartService } from '../cart/cart.service';
+import { CartModel } from '../../models/cart/cart.model';
+import { CategoriesService } from '../categories/categories.service';
+import { ProductCategory } from '../../models/product-category/product.category.model';
 
 
 @Injectable({
@@ -17,7 +21,8 @@ export class ProductService {
       'assets/images/jordans1.png',
       'assets/images/jordans2.png'
     ],
-    description: 'Air Jordan is a line of basketball and sportswear shoes produced by Nike, Inc. The shoes, related apparel and accessories are now marketed under Jordan Brand. The first Air Jordan shoe was produced for basketball player Michael Jordan during his time with the Chicago Bulls on November 17, 1984, and released to the public on April 1, 1985.[2][3] The shoes were designed for Nike by Peter Moore, Tinker Hatfield, and Bruce Kilgore.[4][5] The Jordan Logo, known as the "Jumpman", originated from a photograph by Jacobus Rentmeester, taken before Jordan played for Team USA in the 1984 Summer Olympics.'
+    description: 'Air Jordan is a line of basketball and sportswear shoes produced by Nike, Inc. The shoes, related apparel and accessories are now marketed under Jordan Brand. The first Air Jordan shoe was produced for basketball player Michael Jordan during his time with the Chicago Bulls on November 17, 1984, and released to the public on April 1, 1985.[2][3] The shoes were designed for Nike by Peter Moore, Tinker Hatfield, and Bruce Kilgore.[4][5] The Jordan Logo, known as the "Jumpman", originated from a photograph by Jacobus Rentmeester, taken before Jordan played for Team USA in the 1984 Summer Olympics.',
+    discount: 10
   },
   {
     id: 2,
@@ -29,7 +34,8 @@ export class ProductService {
       'assets/images/airforce1.png',
       'assets/images/airforce2.png'
     ],
-    description: "The shoes are sold in three different styles: low, mid, and high. The mid comes with a connected strap. The high-top Air Force 1s come with a velcro strap; the mid-top strap is secured to the shoe while the high-top's strap is movable and removable on some versions. Although the shoe comes in different colors and color schemes, the most common Air Force 1s sold are solid white  the second most common being solid black  Another identifying characteristic of an Air Force 1 shoe is a small medallion secured to the bottom of the laces but with holes on both sides so it can be removed by sliding it off the shoe lace. The medallion is engraved with the inscription 'AF-1', with the year "
+    description: "The shoes are sold in three different styles: low, mid, and high. The mid comes with a connected strap. The high-top Air Force 1s come with a velcro strap; the mid-top strap is secured to the shoe while the high-top's strap is movable and removable on some versions. Although the shoe comes in different colors and color schemes, the most common Air Force 1s sold are solid white  the second most common being solid black  Another identifying characteristic of an Air Force 1 shoe is a small medallion secured to the bottom of the laces but with holes on both sides so it can be removed by sliding it off the shoe lace. The medallion is engraved with the inscription 'AF-1', with the year ",
+    discount: 0
   },
   {
     id: 3,
@@ -41,7 +47,8 @@ export class ProductService {
       'assets/images/airmax1.png',
       'assets/images/airmax2.png'
     ],
-    description: 'Air Max shoes are identified by their midsoles incorporating flexible urethane pouches filled with pressurized gas, visible from the exterior of the shoe and intended to provide cushioning to the underfoot'
+    description: 'Air Max shoes are identified by their midsoles incorporating flexible urethane pouches filled with pressurized gas, visible from the exterior of the shoe and intended to provide cushioning to the underfoot',
+    discount: 25
   },
   {
     id: 4,
@@ -53,7 +60,8 @@ export class ProductService {
       'assets/images/gucci1.png',
       'assets/images/gucci2.png'
     ],
-    description: "If the soles are made out of synthetic material instead of leather, it's most likely a fake. Authentic Gucci soles should be stamped above the shoe size with “Gucci” and “Made in Italy”. Some Gucci shoes will have a silver or gold plate engraved with “GUCCI” located below the shoe size."
+    description: "If the soles are made out of synthetic material instead of leather, it's most likely a fake. Authentic Gucci soles should be stamped above the shoe size with “Gucci” and “Made in Italy”. Some Gucci shoes will have a silver or gold plate engraved with “GUCCI” located below the shoe size.",
+    discount: 0
   },
   {
     id: 5,
@@ -65,7 +73,8 @@ export class ProductService {
       'assets/images/hushpuppies1.png',
       'assets/images/hushpuppies2.png'
     ],
-    description: "It's all in the Shoe. From the very beginning, the revolutionary use of leather protector made Hush Puppies leather scuff, stain and water resistant and changed suede footwear forever."
+    description: "It's all in the Shoe. From the very beginning, the revolutionary use of leather protector made Hush Puppies leather scuff, stain and water resistant and changed suede footwear forever.",
+    discount: 20
   }
 ] 
 
@@ -101,12 +110,5 @@ export class ProductService {
       localStorage.setItem('shoes',JSON.stringify(afterDeletedShoe))
   }
 
-  // public updateShoeCategory(category : ShoeCategory){
-  //   let allShoes : ShoeModel[] = this.getShoes()
-  //   let categoryShoes : ShoeModel[] = allShoes.filter((p)=> p.category.id === category.id)
-  //   for(let i = 0; i < categoryShoes.length; i++){
-  //     categoryShoes[i].category = {...category}
-  //     this.updateShoe(categoryShoes[i])
-  //   }
-  // } 
+  
 }

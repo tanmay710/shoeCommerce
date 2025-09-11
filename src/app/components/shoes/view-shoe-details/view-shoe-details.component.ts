@@ -26,12 +26,13 @@ import { ProductCategory } from '../../../core/models/product-category/product.c
 import { ProductShowModel } from '../../../core/models/product/product-show.model';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
 import { ReviewShowModel } from '../../../core/models/review/review-show';
+import { ShoeReviewComponent } from "../shoe-review/shoe-review.component";
 @Component({
   selector: 'app-view-shoe-details',
   imports: [TitleCasePipe, MatButtonModule,
     MatFormFieldModule, MatInputModule, FormsModule,
     ReactiveFormsModule, MatCardModule, MatTabsModule, DatePipe,
-    MatIconModule, NgxStarsModule],
+    MatIconModule, NgxStarsModule, ShoeReviewComponent],
   templateUrl: './view-shoe-details.component.html',
   styleUrl: './view-shoe-details.component.scss'
 })
@@ -101,7 +102,8 @@ export class ViewShoeDetailsComponent implements OnInit {
       inventory: this.product.inventory,
       cost: this.product.cost,
       img_url: this.product.img_url,
-      description: this.product.description
+      description: this.product.description,
+      discount : this.product.discount
     }
   }
 
@@ -131,11 +133,17 @@ export class ViewShoeDetailsComponent implements OnInit {
           this.cartService.updateCartItem(prod)
         }
         else {
-          let totCost = (this.product.cost * this.quantForm.value.quantity * (this.category.gst / 100)) + this.product.cost * this.quantForm.value.quantity
+        let discountPrice = this.product.cost * (this.product.discount/100)
+        let productPriceAfterDiscount = this.product.cost - discountPrice
+        let totCost = (productPriceAfterDiscount* this.quantForm.value.quantity * (this.category.gst / 100)) + productPriceAfterDiscount * this.quantForm.value.quantity
           let cartItem: CartItem = {
             productId: this.productId,
             quantity: this.quantForm.value.quantity,
-            totalcost: totCost
+            totalcost: totCost,
+            productName: prod.productName,
+            productCost: prod.productCost,
+            gst: this.category.gst,
+            productDiscount: this.product.discount
           }
           let newCart: CartModel = {
             userId: this.userId,
@@ -148,11 +156,17 @@ export class ViewShoeDetailsComponent implements OnInit {
         }
       }
       else {
-        let totCost = (this.product.cost * this.quantForm.value.quantity * (this.category.gst / 100)) + this.product.cost * this.quantForm.value.quantity
+        let discountPrice = this.product.cost * (this.product.discount/100)
+        let productPriceAfterDiscount = this.product.cost - discountPrice
+        let totCost = (productPriceAfterDiscount* this.quantForm.value.quantity * (this.category.gst / 100)) + productPriceAfterDiscount * this.quantForm.value.quantity
         let cartItem: CartItem = {
           productId: this.productId,
           quantity: this.quantForm.value.quantity,
-          totalcost: totCost
+          totalcost: totCost,
+          productName: this.product.name,
+          productCost: this.product.cost,
+          gst: this.category.gst,
+          productDiscount: this.product.discount
         }
         console.log(totCost);
         console.log(this.category.gst);

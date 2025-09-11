@@ -25,9 +25,7 @@
                 @if(signupForm.get('email')?.hasError('email') && (signupForm.get('email')?.touched)){
                     <mat-error>Invalid email</mat-error>
                 }
-                @if(isSubmit && signupForm?.get('email').hasError('required')){
-                        <mat-error>Please add Email</mat-error>
-                   }
+                
             </mat-form-field>
         </div>
         <div>
@@ -43,9 +41,7 @@
                 @if(signupForm.get('phone')?.hasError('maxlength') && (signupForm.get('phone')?.dirty)){
                     <mat-error>Maximum 10 numbers</mat-error>
                 }
-                @if(isSubmit && signupForm?.get('phone').hasError('required')){
-                        <mat-error>Please add Phone number</mat-error>
-                   }
+                
             </mat-form-field>
         </div>
         <div>
@@ -58,9 +54,7 @@
                 @if(signupForm.get('password')?.hasError('minlength') && (signupForm.get('password')?.touched)){
                     <mat-error>Minimum 6 characters</mat-error>
                 }
-                @if(isSubmit && signupForm?.get('password').hasError('required')){
-                        <mat-error>Please add password</mat-error>
-                   }
+               
             </mat-form-field>
         </div>
         <div>

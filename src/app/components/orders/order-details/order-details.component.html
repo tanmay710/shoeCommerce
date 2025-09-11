@@ -39,7 +39,7 @@
         </ng-container>
         <ng-container matColumnDef="priceperpiece">
             <th mat-header-cell *matHeaderCellDef> Cost for 1 item </th>
-            <td mat-cell *matCellDef="let item"> {{item.cost}} </td>
+            <td mat-cell *matCellDef="let item"> {{item.productCost}} </td>
         </ng-container>
         <ng-container matColumnDef="quantity">
             <th mat-header-cell *matHeaderCellDef> Quantity bought </th>
@@ -47,7 +47,7 @@
         </ng-container>
         <ng-container matColumnDef="totalprice">
             <th mat-header-cell *matHeaderCellDef> Total price for product</th>
-            <td mat-cell *matCellDef="let item"> {{item.cost * item.quantity}} </td>
+            <td mat-cell *matCellDef="let item"> {{item.productCost * item.quantity}} </td>
         </ng-container>
         <ng-container matColumnDef="gst">
             <th mat-header-cell *matHeaderCellDef>GST%</th>
@@ -55,7 +55,7 @@
         </ng-container>
          <ng-container matColumnDef="gstcost">
             <th mat-header-cell *matHeaderCellDef>GST</th>
-            <td mat-cell *matCellDef="let item">{{(item.cost * item.quantity)*(item.gst/100)}}</td>
+            <td mat-cell *matCellDef="let item">{{(item.productCost * item.quantity)*(item.gst/100)}}</td>
         </ng-container>
         <ng-container matColumnDef="totalcostaftergst">
             <th mat-header-cell *matHeaderCellDef>Total cost after GST</th>

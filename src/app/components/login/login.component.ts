@@ -38,6 +38,7 @@ export class LoginComponent implements OnInit {
     this.userService.getUsers().subscribe((data) => {
       this.users = data
     })
+    this.productService.storeDetails()
   }
 
   public onSubmit() {
@@ -46,12 +47,12 @@ export class LoginComponent implements OnInit {
       const user = this.users.find((p) => (p.email === this.loginForm.value.email) && (p.password === this.loginForm.value.password))
       if (user) {
 
-        this.snackbar.showSuccess("successfully logged in")
+        this.snackbar.showSnackbar('Successfully logged in', 'Success')
         this.authService.login(user)
         this.router.navigate(['/shoelist'])
       }
       else {
-        this.snackbar.showError('Credentials do not match')
+        this.snackbar.showSnackbar('Could not authenticate','Error')
         this.loginForm.reset()
       }
     }

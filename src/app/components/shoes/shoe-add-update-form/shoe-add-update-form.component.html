@@ -41,10 +41,10 @@
                     </mat-option>
                     }
                 </mat-select>
-                @if(shoeForm.get('category')?.hasError('required') &&(shoeForm.get('category').touched && shoeForm.get('category').dirty)){
+                @if(shoeForm.get('category')?.hasError('required')){
                         <mat-error>Please add category</mat-error>
                     }
-                    @if(isSubmit && shoeForm?.get('category').hasError('required')){
+                    @if(isSubmit && shoeForm.get('category')?.hasError('required')){
                         <mat-error>Please add Category</mat-error>
                    } 
             </mat-form-field>
@@ -52,6 +52,7 @@
         <div>
             <div formArrayName="img_url">
                 <mat-label>Image Url</mat-label>
+                
                 @for(url of getUrlArray().controls;track url ; let i = $index){
                     <mat-form-field>
                         <input matInput [formControlName]="i">
@@ -78,7 +79,7 @@
         <div>
             <mat-form-field>
                 <mat-label>Inventory</mat-label>
-                <input matInput formControlName="inventory" type="number" [min]="1">
+                <input matInput formControlName="inventory" type="number" >
                 @if(shoeForm.get('inventory')?.hasError('required') &&(shoeForm.get('inventory').touched && shoeForm.get('inventory').dirty)){
                         <mat-error>Please add Inventory</mat-error>
                     }
@@ -101,6 +102,18 @@
                         <mat-error>Please add Cost</mat-error>
                    } 
                    @if(shoeForm?.get('cost').hasError('min') && (shoeForm.get('cost').touched)){
+                    <mat-error>Minimum value should be 1</mat-error>
+                   }
+            </mat-form-field>
+        </div>
+        <div>
+            <mat-form-field>
+                <mat-label>Discount</mat-label>
+                <input matInput formControlName="discount"[min]="1">
+                @if(shoeForm.get('discount')?.hasError('required')){
+                        <mat-error>Please add Cost</mat-error>
+                    }
+                   @if(shoeForm?.get('discount').hasError('min') && (shoeForm.get('cost').touched)){
                     <mat-error>Minimum value should be 1</mat-error>
                    }
             </mat-form-field>

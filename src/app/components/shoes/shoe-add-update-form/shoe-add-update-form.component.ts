@@ -34,9 +34,11 @@ export class ShoeAddUpdateFormComponent implements OnInit {
       categoryId: ['', Validators.required],
       description: ['', Validators.required],
       img_url: this.fb.array([]),
-      inventory: ['', [Validators.required,Validators.min(1)]],
-      cost: ['', [Validators.required,Validators.min(1)]]
+      inventory: ['', [Validators.required]],
+      cost: ['', [Validators.required,Validators.min(1)]],
+      discount : ['',[Validators.required,Validators.min(0)]]
     })
+    this.getUrlArray().push(this.fb.control(''))
   }
 
   ngOnInit(): void {
@@ -45,7 +47,6 @@ export class ShoeAddUpdateFormComponent implements OnInit {
       const shoes: ProductModel[] = this.productService.getShoes()
       const updateShoe = shoes.find((p) => p.id === this.shoeId)
       console.log(updateShoe);
-      
       this.shoeForm.patchValue(updateShoe)
       this.mode = 'update'
     }
@@ -81,9 +82,11 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             inventory: this.shoeForm.value.inventory,
             cost: this.shoeForm.value.cost,
             img_url: toUpdateShoe.img_url,
-            description: this.shoeForm.value.description
+            description: this.shoeForm.value.description,
+            discount : this.shoeForm.value.discount
           }
           this.productService.updateShoe(updateShoe)
+          this.categoriesService.updatedProductInCart(updateShoe)
           this.snackbar.showSuccess("successfully updated the shoe data")
           this.router.navigate(['/shoelist'])
         }
@@ -95,9 +98,12 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             inventory: this.shoeForm.value.inventory,
             cost: this.shoeForm.value.cost,
             img_url: this.shoeForm.value.img_url,
-            description: this.shoeForm.value.description
+            description: this.shoeForm.value.description,
+            discount : this.shoeForm.value.discount
           }
-          console.log("hello",updateShoe);
+          this.productService.updateShoe(updateShoe)
+          this.categoriesService.updatedProductInCart(updateShoe)
+          this.snackbar.showSuccess("successfully updated the shoe data")
         }
       }
       else {
@@ -118,7 +124,8 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             inventory: +this.shoeForm.value.inventory,
             cost: +this.shoeForm.value.cost,
             img_url: this.shoeForm.value.img_url,
-            description: this.shoeForm.value.description
+            description: this.shoeForm.value.description,
+            discount : this.shoeForm.value.discount
           }
           this.productService.addShoe(addShoe)
           this.snackbar.showSuccess("successfully added the shoe data")

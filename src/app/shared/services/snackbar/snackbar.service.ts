@@ -27,9 +27,24 @@ export class SnackbarService {
   }
 
   public showSnackbar(message : string,type : 'Success' | 'Error' | 'Info' | 'Warning'){
+    let panelClass : string[]
+    switch(type){
+      case 'Success':
+        panelClass = ['success-snackbar']
+        break
+      case 'Error' :
+        panelClass = ['error-snackbar']
+        break
+      case 'Info' : 
+        panelClass = ['info-snackbar']
+        break
+      case 'Warning':
+        panelClass = ['warning-snackbar']
+        break
+    }
     this.snackBar.open(message,'Dismiss',{
       duration : 3000,
-      panelClass : type === 'Success'? ['success-snackbar'] : ['error-snackbar'],
+      panelClass : panelClass,
       verticalPosition : type === 'Success'? 'top' : 'bottom'
     })
   }

@@ -33,11 +33,14 @@ export class OrderDetailsComponent implements OnInit {
   public userId: number
   public reviewform: FormGroup
   public displayedColumns: string[] = ['name', 'priceperpiece', 'quantity', 'totalprice', 'gst', 'gstcost', 'totalcostaftergst', 'review'];
-  public OrderDetailsDataSource: MatTableDataSource<CartItemShowModel> = new MatTableDataSource([])
+  public OrderDetailsDataSource: MatTableDataSource<CartItem> = new MatTableDataSource([])
   public showCartData: CartItemShowModel[]
   public categories : ProductCategory[]
-  constructor(private route: ActivatedRoute, private orderService: OrderService, private router: Router,
-    private fb: FormBuilder, private dialog: MatDialog, private reviewService: ReviewService,
+
+  constructor(private route: ActivatedRoute, 
+    private orderService: OrderService, private router: Router,
+    private fb: FormBuilder, private dialog: MatDialog,
+     private reviewService: ReviewService,
     private userService: UserService,
     private categoryService: CategoriesService,
     private productService: ProductService,
@@ -69,7 +72,7 @@ export class OrderDetailsComponent implements OnInit {
         totalcost: p.totalcost
       }
     })
-    this.OrderDetailsDataSource.data = this.showCartData
+    this.OrderDetailsDataSource.data = this.order.cart.items
   }
 
   public onClick(id: number) {

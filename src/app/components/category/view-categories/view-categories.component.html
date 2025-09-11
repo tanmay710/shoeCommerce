@@ -1,8 +1,8 @@
 <div>
     <div>
-        <button mat-flat-button type="button" (click)="onClick()" class="addbutton"><mat-icon>add</mat-icon>Add Category</button>
+        <button mat-flat-button type="button" color="primary" (click)="onClick()" class="addbutton"><mat-icon>add</mat-icon>Add Category</button>
     </div>
-    <table mat-table [dataSource]="categoryDataSource" class="mat-elevation-z8" matSort>
+    <table mat-table [dataSource]="categoryDataSource" class="" matSort>
         <ng-container matColumnDef="id">
                 <th mat-header-cell *matHeaderCellDef> ID </th>
                 <td mat-cell *matCellDef="let cat"> {{cat.id }} </td>
@@ -26,6 +26,7 @@
         <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
         <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
+
     <mat-paginator [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
     </mat-paginator>
 </div>

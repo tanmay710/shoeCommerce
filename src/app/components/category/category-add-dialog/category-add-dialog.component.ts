@@ -84,30 +84,8 @@ export class CategoryAddDialogComponent implements OnInit {
           name: this.categoryAddForm.value.name,
           gst: this.categoryAddForm.value.gst
         }
-        // let prods: ProductModel[] = this.productService.getShoes()
-        // let prodsWithUpdatedCategory = prods.filter((z) => z.categoryId == updatedCategory.id)
-
-        // this.categoriesService.updateCategory(updatedCategory)
-        // let carts: CartModel[] = this.cartService.getCart()
-        // let updatedCarts : CartModel[] = carts.filter((p)=>{
-        //   return p.items.includes(prodsWithUpdatedCategory.)
-        // })
-      // let updatedCarts: CartModel[] = carts.map((p) => {
-        //   let cartItems: CartItem[] = p.items
-        //   let updatedItems: CartItem[] = cartItems.filter((c) => {
-            
-        //     return {
-        //       productId: c.productId,
-        //       quantity: c.quantity,
-        //       totalcost: number
-        //     }
-        //   })
-        //   return {
-        //     userId: p.userId,
-        //     totalAmount: 0,
-        //     items: []
-        //   }
-        // })
+        this.categoriesService.updateCategory(updatedCategory)
+        this.categoriesService.updateCategoryGstInsideCart(updatedCategory)
         this.snackbar.showSuccess('Successfully updated the category')
         this.dialogRef.close()
       }

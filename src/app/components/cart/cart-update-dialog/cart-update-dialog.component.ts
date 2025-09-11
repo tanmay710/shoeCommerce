@@ -57,15 +57,17 @@ export class CartUpdateDialogComponent implements OnInit {
       if (this.updateForm.value.quantity <= this.product.inventory) {
         let newCartItem: CartItem = { ...this.cartItem }
         let category : ProductCategory = this.categories.find((p)=> p.id === this.product.categoryId)
-        let totcost = (this.product.cost * this.updateForm.value.quantity * (category.gst / 100)) + this.product.cost * this.updateForm.value.quantity
         newCartItem.quantity = this.updateForm.value.quantity
+        let discountPrice = this.product.cost * (this.product.discount/100)
+        let productPriceAfterDiscount = this.product.cost - discountPrice
+        let totcost = (productPriceAfterDiscount* this.updateForm.value.quantity * (category.gst / 100)) + productPriceAfterDiscount * this.updateForm.value.quantity
         newCartItem.totalcost = totcost
         this.cartService.updateCartItem(newCartItem)
         this.dialogRef.close()
-        this.snackbar.showSuccess("successfully updated the item")
+        this.snackbar.showSnackbar("successfully updated the item",'Success')
       }
       else {
-        this.snackbar.showError(`Not enough quantity in inventory,max(${this.product.inventory})`)
+        this.snackbar.showSnackbar(`Not enough quantity in inventory,max(${this.product.inventory})`,'Error')
       }
     }
   }

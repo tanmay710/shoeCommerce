@@ -16,10 +16,28 @@ export class CartService {
   public userId: number
   constructor(private userService: UserService) {
     this.currentUser = userService.getCurrentUser()
-    this.userId = this.currentUser.id
+   
+    if(this.currentUser){
+       this.userId = this.currentUser.id
+    }
     let allCarts: CartModel[] = JSON.parse(localStorage.getItem('carts'))
     let cart = this.getUserCart()
     this.cartSize.next(cart?.items.length)
+  }
+
+  public loginCartSize(){
+    let cart = this.getUserCart()
+    if(cart){
+      return this.cartSize.next(cart?.items.length)
+    }
+    else{
+       return this.cartSize.next(0)
+    }
+    
+  }
+
+  public logoutCartSize(){
+    return this.cartSize.next(0)
   }
 
   public getCart() {
@@ -30,7 +48,7 @@ export class CartService {
   public getUserCart() {
     let currentUser: UserModel = this.userService.getCurrentUser()
     let allCarts: CartModel[] = this.getCart()
-    let userCart: CartModel = allCarts.find((p) => p.userId === currentUser.id)
+    let userCart: CartModel = allCarts.find((p) => p.userId === currentUser?.id)
     return userCart
   }
 
@@ -89,4 +107,6 @@ export class CartService {
     localStorage.setItem('carts',JSON.stringify(allCarts))
     this.cartSize.next(0)
   }
+
+  
 }

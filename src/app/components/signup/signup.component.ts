@@ -51,7 +51,7 @@ export class SignupComponent implements OnInit{
           password: this.signupForm.value.password
         }
         this.userService.addUser(newUser)
-        this.snackbar.showSuccess("Successfully signed up")
+        this.snackbar.showSnackbar("Successfully signed up",'Success')
       }
       else{
         const newUser : UserModel = {
@@ -62,7 +62,7 @@ export class SignupComponent implements OnInit{
           password: this.signupForm.value.password
         }
         this.userService.addUser(newUser)
-        this.snackbar.showSuccess("Successfully signed up")
+        this.snackbar.showSnackbar("Successfully signed up",'Success')
       }
       this.router.navigate(['/login'])
     }

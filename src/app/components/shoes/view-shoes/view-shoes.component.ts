@@ -17,6 +17,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ProductModel } from '../../../core/models/product/product.model';
 import { ProductCategory } from '../../../core/models/product-category/product.category.model';
 import { ProductShowModel } from '../../../core/models/product/product-show.model';
+import { ConfirmationDialogComponent } from '../../../shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-view-shoes',
@@ -37,7 +38,7 @@ export class ViewShoesComponent implements OnInit, AfterViewInit {
   public filteredDataSource: ProductModel[]
   public searchDataSource: ProductModel[]
   public stockDataSource: ProductModel[]
-  public displayedColumns: string[] = ['name', 'category', 'inventory', 'cost', 'details', 'actions']
+  public displayedColumns: string[] = ['name', 'category', 'inventory', 'cost','discount','details', 'actions']
   public search: string = ''
   public selectedCategory: string;
   public selectedStatus: string
@@ -49,13 +50,14 @@ export class ViewShoesComponent implements OnInit, AfterViewInit {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   constructor(private productService: ProductService, private router: Router,
-    private categoriesService: CategoriesService, private dialog: MatDialog) { }
+    private categoriesService: CategoriesService, private dialog: MatDialog,
+  ) { }
 
   ngOnInit(): void {
     this.product = this.productService.getShoes()
     this.categories = this.categoriesService.getCategories()
     this.productDisplay = this.product.map((p) => {
-      let category = this.categories.find((c)=> p.categoryId === c.id)
+      let category = this.categories.find((c) => p.categoryId === c.id)
       return {
         id: p.id,
         name: p.name,
@@ -63,7 +65,8 @@ export class ViewShoesComponent implements OnInit, AfterViewInit {
         inventory: p.inventory,
         cost: p.cost,
         img_url: p.img_url,
-        description: p.description
+        description: p.description,
+        discount : p.discount
       }
     })
     this.productDataSource.data = this.productDisplay
@@ -82,25 +85,32 @@ export class ViewShoesComponent implements OnInit, AfterViewInit {
     this.router.navigate([`/shoe/update/${product.id}`])
   }
 
-  public onDelete(product: ProductModel) {  
-    const confirmation = confirm("Are you sure you want to delete this")
-    if (confirmation) {
-      this.productService.deleteShoe(product)
-      this.product = this.productService.getShoes()
-      this.productDisplay = this.product.map((p) => {
-      let category = this.categories.find((c)=> p.categoryId === c.id)
-      return {
-        id: p.id,
-        name: p.name,
-        category: category,
-        inventory: p.inventory,
-        cost: p.cost,
-        img_url: p.img_url,
-        description: p.description
+  public onDelete(product: ProductModel) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, { data: { message: 'Are you sure you want to delete this?' } })
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.productService.deleteShoe(product)
+        this.product = this.productService.getShoes()
+        this.productDisplay = this.product.map((p) => {
+          let category = this.categories.find((c) => p.categoryId === c.id)
+          return {
+            id: p.id,
+            name: p.name,
+            category: category,
+            inventory: p.inventory,
+            cost: p.cost,
+            img_url: p.img_url,
+            description: p.description,
+            discount : p.discount
+          }
+        })
+        this.productDataSource.data = this.productDisplay
+      }
+      else{
+        return
       }
     })
-    this.productDataSource.data = this.productDisplay
-    }
+
   }
 
   public onClick() {

@@ -8,4 +8,5 @@ export interface ProductShowModel{
     cost : number
     img_url : string[]
     description : string
+    discount : number
 }

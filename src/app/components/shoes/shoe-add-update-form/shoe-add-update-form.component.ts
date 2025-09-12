@@ -86,7 +86,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             discount : this.shoeForm.value.discount
           }
           this.productService.updateShoe(updateShoe)
-          this.categoriesService.updatedProductInCart(updateShoe)
+          // this.categoriesService.updatedProductInCart(updateShoe)
           this.snackbar.showSuccess("successfully updated the shoe data")
           this.router.navigate(['/shoelist'])
         }
@@ -102,7 +102,7 @@ export class ShoeAddUpdateFormComponent implements OnInit {
             discount : this.shoeForm.value.discount
           }
           this.productService.updateShoe(updateShoe)
-          this.categoriesService.updatedProductInCart(updateShoe)
+          // this.categoriesService.updatedProductInCart(updateShoe)
           this.snackbar.showSuccess("successfully updated the shoe data")
         }
       }

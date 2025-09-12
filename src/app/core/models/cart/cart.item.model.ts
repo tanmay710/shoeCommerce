@@ -1,4 +1,4 @@
-export interface CartItem{
+export interface CartItemShowModel{
     productId : number
     productName : string
     productCost : number

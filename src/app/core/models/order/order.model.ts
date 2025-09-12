@@ -1,8 +1,9 @@
-import { CartModel } from "../cart/cart.model"
+import { CartItemShowModel } from "../cart/cart.item.model"
 
 export interface Order{
     orderId : number
     userId : number
-    cart : CartModel
+    items : CartItemShowModel[]
+    totalAmount : number
     orderDate : string
 }

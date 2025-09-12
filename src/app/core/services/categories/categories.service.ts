@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ProductCategory } from '../../models/product-category/product.category.model';
 import { CartService } from '../cart/cart.service';
-import { CartModel } from '../../models/cart/cart.model';
 import { ProductModel } from '../../models/product/product.model';
 import { ProductService } from '../product/product.service';
 
@@ -49,43 +48,43 @@ export class CategoriesService {
     localStorage.setItem('categories',JSON.stringify(existingCategory))
   }
 
-  public updateCategoryGstInsideCart(category : ProductCategory){
-    let allCarts: CartModel[] = this.cartService.getCart()
-    let allProducts : ProductModel[] = this.productService.getShoes()
-    allCarts.forEach((cart)=> {
-      cart.items.forEach((item)=> {
-        let prod = allProducts.find((p)=> p.id === item.productId)
-        if(prod && prod.categoryId === category.id){
-          let basePrice = prod.cost * item.quantity
-          let gstAmount = basePrice* (category.gst/100)
-          item.totalcost = basePrice + gstAmount
-        }
-      })
-      cart.totalAmount = cart.items.reduce((sum,item)=> sum + item.totalcost,0)
-    })
-    localStorage.setItem('carts',JSON.stringify(allCarts))
-  }
+  // public updateCategoryGstInsideCart(category : ProductCategory){
+  //   let allCarts: CartModel[] = this.cartService.getCart()
+  //   let allProducts : ProductModel[] = this.productService.getShoes()
+  //   allCarts.forEach((cart)=> {
+  //     cart.items.forEach((item)=> {
+  //       let prod = allProducts.find((p)=> p.id === item.productId)
+  //       if(prod && prod.categoryId === category.id){
+  //         let basePrice = prod.cost * item.quantity
+  //         let gstAmount = basePrice* (category.gst/100)
+  //         item.totalcost = basePrice + gstAmount
+  //       }
+  //     })
+  //     cart.totalAmount = cart.items.reduce((sum,item)=> sum + item.totalcost,0)
+  //   })
+  //   localStorage.setItem('carts',JSON.stringify(allCarts))
+  // }
 
-  public updatedProductInCart(product : ProductModel){
-    let allCarts: CartModel[] = this.cartService.getCart()
-    let allCategory : ProductCategory[] = this.getCategories()
-    let category : ProductCategory = allCategory.find((c)=> c.id === product.categoryId)
-    allCarts.forEach((cart)=>{
-      cart.items.forEach((item)=>{
-        if(item.productId === product.id){
-          item.productName = product.name
-          item.productCost = product.cost
-          item.productDiscount = product.discount
-          item.gst = category.gst
-          let basePrice = product.cost * item.quantity
-          let discountPrice = basePrice * (product.discount/100)
-          let afteDiscount = basePrice - discountPrice
-          let gstAmount = afteDiscount* (category.gst/100)
-          item.totalcost = afteDiscount + gstAmount
-        }
-      })
-      cart.totalAmount = cart.items.reduce((sum,item)=> sum + item.totalcost,0)
-    })
-    localStorage.setItem('carts',JSON.stringify(allCarts))
-  }
+  // public updatedProductInCart(product : ProductModel){
+  //   let allCarts: CartModel[] = this.cartService.getCart()
+  //   let allCategory : ProductCategory[] = this.getCategories()
+  //   let category : ProductCategory = allCategory.find((c)=> c.id === product.categoryId)
+  //   allCarts.forEach((cart)=>{
+  //     cart.items.forEach((item)=>{
+  //       if(item.productId === product.id){
+  //         item.productName = product.name
+  //         item.productCost = product.cost
+  //         item.productDiscount = product.discount
+  //         item.gst = category.gst
+  //         let basePrice = product.cost * item.quantity
+  //         let discountPrice = basePrice * (product.discount/100)
+  //         let afteDiscount = basePrice - discountPrice
+  //         let gstAmount = afteDiscount* (category.gst/100)
+  //         item.totalcost = afteDiscount + gstAmount
+  //       }
+  //     })
+  //     cart.totalAmount = cart.items.reduce((sum,item)=> sum + item.totalcost,0)
+  //   })
+  //   localStorage.setItem('carts',JSON.stringify(allCarts))
+  // }
 }

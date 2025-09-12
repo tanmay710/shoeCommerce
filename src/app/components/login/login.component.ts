@@ -38,7 +38,6 @@ export class LoginComponent implements OnInit {
     this.userService.getUsers().subscribe((data) => {
       this.users = data
     })
-    this.productService.storeDetails()
   }
 
   public onSubmit() {

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrderService } from '../../../core/services/order/order.service';
 import { Order } from '../../../core/models/order/order.model';
-import { TitleCasePipe } from '@angular/common';
+import { DatePipe, TitleCasePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { UserModel } from '../../../core/models/user/user.model';
@@ -11,10 +11,9 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReviewDialogComponent } from '../../review-dialog/review-dialog.component';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { CartItem } from '../../../core/models/cart/cart.item.model';
+import { CartItemShowModel } from '../../../core/models/cart/cart.item.model';
 import { ReviewService } from '../../../core/services/review/review.service';
 import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
-import { CartItemShowModel } from '../../../core/models/cart/cart.item.show.model';
 import { UserService } from '../../../core/services/user/user.service';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
 import { ProductService } from '../../../core/services/product/product.service';
@@ -22,7 +21,7 @@ import { ProductCategory } from '../../../core/models/product-category/product.c
 import { ProductModel } from '../../../core/models/product/product.model';
 @Component({
   selector: 'app-order-details',
-  imports: [MatCardModule, MatButtonModule, TitleCasePipe, ReactiveFormsModule, MatTableModule],
+  imports: [MatCardModule, MatButtonModule, TitleCasePipe, ReactiveFormsModule, MatTableModule,DatePipe],
   templateUrl: './order-details.component.html',
   styleUrl: './order-details.component.scss'
 })
@@ -33,7 +32,7 @@ export class OrderDetailsComponent implements OnInit {
   public userId: number
   public reviewform: FormGroup
   public displayedColumns: string[] = ['name', 'priceperpiece', 'quantity', 'totalprice', 'gst', 'gstcost', 'totalcostaftergst', 'review'];
-  public OrderDetailsDataSource: MatTableDataSource<CartItem> = new MatTableDataSource([])
+  public OrderDetailsDataSource: MatTableDataSource<CartItemShowModel> = new MatTableDataSource([])
   public showCartData: CartItemShowModel[]
   public categories : ProductCategory[]
 
@@ -54,25 +53,10 @@ export class OrderDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.orderId = +this.route.snapshot.paramMap.get('id')
-    let allOrders = this.orderService.getAllOrders()
-    this.order = allOrders.find((p) => p.orderId === this.orderId)
-    let currentUser: UserModel = this.userService.getCurrentUser()
-    this.userId = currentUser.id
-    this.categories = this.categoryService.getCategories()
-    this.showCartData = this.order.cart.items.map((p) => {
-      let prod: ProductModel[] = this.productService.getShoes()
-      let prod1: ProductModel = prod.find((exprod) => exprod.id === p.productId)
-      let category: ProductCategory = this.categories.find((c) => c.id === prod1.categoryId)
-      return {
-        productId: p.productId,
-        gst: category.gst,
-        productName: prod1.name,
-        cost: prod1.cost,
-        quantity: p.quantity,
-        totalcost: p.totalcost
-      }
-    })
-    this.OrderDetailsDataSource.data = this.order.cart.items
+    let userOrders = this.orderService.getCurrentUserOrders()
+    this.order = userOrders.find((ord)=> ord.orderId === this.orderId)
+    
+    this.OrderDetailsDataSource.data = this.order.items
   }
 
   public onClick(id: number) {

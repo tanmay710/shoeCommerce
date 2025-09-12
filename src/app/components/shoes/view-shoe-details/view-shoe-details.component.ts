@@ -6,8 +6,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from "@angular/material/form-field";
 import { MatInputModule } from '@angular/material/input';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from "@angular/forms";
-import { CartItem } from '../../../core/models/cart/cart.item.model';
-import { CartModel } from '../../../core/models/cart/cart.model';
 import { CartService } from '../../../core/services/cart/cart.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -27,6 +25,8 @@ import { ProductShowModel } from '../../../core/models/product/product-show.mode
 import { CategoriesService } from '../../../core/services/categories/categories.service';
 import { ReviewShowModel } from '../../../core/models/review/review-show';
 import { ShoeReviewComponent } from "../shoe-review/shoe-review.component";
+import { CartStoreModel } from '../../../core/models/cart/cart.store.model';
+import { CartItemStoreModel } from '../../../core/models/cart/cart.item.store.model';
 @Component({
   selector: 'app-view-shoe-details',
   imports: [TitleCasePipe, MatButtonModule,
@@ -112,16 +112,15 @@ export class ViewShoeDetailsComponent implements OnInit {
       this.clicked = true
     }
     else {
-
       this.snackbar.showError("The product is currently out of stock, please select different product")
     }
   }
 
   public onSubmit() {
     if (this.quantForm.valid) {
-      let userCart: CartModel = this.cartService.getUserCart()
+      let userCart: CartStoreModel = this.cartService.getUserCart()
       if (userCart) {
-        let prod: CartItem = userCart.items.find((p) => p.productId === this.productId)
+        let prod: CartItemStoreModel = userCart.items.find((p) => p.productId === this.productId)
         if (prod) {
           let totQuantity = prod.quantity + this.quantForm.value.quantity
           if (totQuantity > this.product.inventory) {
@@ -133,52 +132,29 @@ export class ViewShoeDetailsComponent implements OnInit {
           this.cartService.updateCartItem(prod)
         }
         else {
-        let discountPrice = this.product.cost * (this.product.discount/100)
-        let productPriceAfterDiscount = this.product.cost - discountPrice
-        let totCost = (productPriceAfterDiscount* this.quantForm.value.quantity * (this.category.gst / 100)) + productPriceAfterDiscount * this.quantForm.value.quantity
-          let cartItem: CartItem = {
+          let cartItem: CartItemStoreModel = {
             productId: this.productId,
-            quantity: this.quantForm.value.quantity,
-            totalcost: totCost,
-            productName: prod.productName,
-            productCost: prod.productCost,
-            gst: this.category.gst,
-            productDiscount: this.product.discount
+            quantity: this.quantForm.value.quantity
           }
-          let newCart: CartModel = {
+          let newCart: CartStoreModel = {
             userId: this.userId,
-            items: [],
-            totalAmount: 0
+            items: []
           }
           newCart.items.push(cartItem)
-          newCart.totalAmount = newCart.items.reduce((sum, item) => sum + item.totalcost, 0)
           this.cartService.addCartItem(newCart, cartItem)
         }
       }
       else {
-        let discountPrice = this.product.cost * (this.product.discount/100)
-        let productPriceAfterDiscount = this.product.cost - discountPrice
-        let totCost = (productPriceAfterDiscount* this.quantForm.value.quantity * (this.category.gst / 100)) + productPriceAfterDiscount * this.quantForm.value.quantity
-        let cartItem: CartItem = {
+        let cartItem: CartItemStoreModel = {
           productId: this.productId,
-          quantity: this.quantForm.value.quantity,
-          totalcost: totCost,
-          productName: this.product.name,
-          productCost: this.product.cost,
-          gst: this.category.gst,
-          productDiscount: this.product.discount
+          quantity: this.quantForm.value.quantity
         }
-        console.log(totCost);
-        console.log(this.category.gst);
-        console.log((this.product.cost * this.quantForm.value.quantity * (this.category.gst / 100)));
-
-        let newCart: CartModel = {
+    
+        let newCart: CartStoreModel = {
           userId: this.userId,
-          items: [],
-          totalAmount: 0
+          items: []
         }
         newCart.items.push(cartItem)
-        newCart.totalAmount = totCost
         this.cartService.addCartItem(newCart, cartItem)
       }
       this.snackbar.showSuccess("successfully added to cart")

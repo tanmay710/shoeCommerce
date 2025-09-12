@@ -1,7 +1,7 @@
-import { CartItem } from "./cart.item.model"
+import { CartItemShowModel } from "./cart.item.model"
 
-export interface CartModel{
+export interface CartShowModel{
     userId : number
-    items : CartItem[]
+    items : CartItemShowModel[]
     totalAmount : number
 }

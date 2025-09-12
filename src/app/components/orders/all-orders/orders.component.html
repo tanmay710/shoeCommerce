@@ -2,7 +2,7 @@
     <h2>Order History</h2>
     <div class="orders">
         @if(currentUserOrders.length !== 0){
-        @for(order of showOrders; track order){
+        @for(order of currentUserOrders; track order){
         <div class="cards">
             <mat-card class="ordercard" appearance="outlined">
                 <div>
@@ -15,10 +15,10 @@
                     <mat-card-content>
                          Products Ordered :
                         <ol>    
-                            @for(item of order.cart.items;track $index){
+                            @for(item of order.items;track $index){
                             <li class="items"> {{item.productName | titlecase}}</li>
                             }</ol><br>
-                        Order Date : {{order.orderDate}}
+                        Order Date : {{order.orderDate | date:'longDate'}}
                        
                     </mat-card-content>
                 </div>

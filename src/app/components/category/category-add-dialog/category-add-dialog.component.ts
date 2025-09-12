@@ -18,8 +18,6 @@ import { SnackbarService } from '../../../shared/services/snackbar/snackbar.serv
 import { ProductService } from '../../../core/services/product/product.service';
 import { ProductCategory } from '../../../core/models/product-category/product.category.model';
 import { CartService } from '../../../core/services/cart/cart.service';
-import { CartModel } from '../../../core/models/cart/cart.model';
-import { CartItem } from '../../../core/models/cart/cart.item.model';
 import { ProductModel } from '../../../core/models/product/product.model';
 @Component({
   selector: 'app-category-add-dialog',
@@ -85,7 +83,7 @@ export class CategoryAddDialogComponent implements OnInit {
           gst: this.categoryAddForm.value.gst
         }
         this.categoriesService.updateCategory(updatedCategory)
-        this.categoriesService.updateCategoryGstInsideCart(updatedCategory)
+        // this.categoriesService.updateCategoryGstInsideCart(updatedCategory)
         this.snackbar.showSuccess('Successfully updated the category')
         this.dialogRef.close()
       }

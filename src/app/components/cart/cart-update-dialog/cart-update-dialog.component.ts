@@ -14,12 +14,13 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { CartService } from '../../../core/services/cart/cart.service';
-import { CartItem } from '../../../core/models/cart/cart.item.model';
 import { ProductService } from '../../../core/services/product/product.service';
 import { SnackbarService } from '../../../shared/services/snackbar/snackbar.service';
 import { ProductModel } from '../../../core/models/product/product.model';
 import { ProductCategory } from '../../../core/models/product-category/product.category.model';
 import { CategoriesService } from '../../../core/services/categories/categories.service';
+import { CartItemShowModel } from '../../../core/models/cart/cart.item.model';
+import { CartItemStoreModel } from '../../../core/models/cart/cart.item.store.model';
 @Component({
   selector: 'app-cart-update-dialog',
   imports: [ReactiveFormsModule, MatButtonModule, MatSelectModule, MatInputModule,
@@ -29,7 +30,7 @@ import { CategoriesService } from '../../../core/services/categories/categories.
 })
 export class CartUpdateDialogComponent implements OnInit {
   updateForm: FormGroup
-  public cartItem: CartItem
+  public cartItem: CartItemShowModel
   public categories : ProductCategory[]
   public product: ProductModel
 
@@ -37,7 +38,7 @@ export class CartUpdateDialogComponent implements OnInit {
     private productService: ProductService,
     private categoryService : CategoriesService,
     private dialogRef: MatDialogRef<CartUpdateDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { cartItem: CartItem }
+    @Inject(MAT_DIALOG_DATA) public data: { cartItem: CartItemShowModel }
   ) {
     this.cartItem = data.cartItem
     this.updateForm = this.fb.group({
@@ -49,19 +50,13 @@ export class CartUpdateDialogComponent implements OnInit {
     this.updateForm.patchValue(this.cartItem)
     const products: ProductModel[] = this.productService.getShoes()
     this.product = products.find((p) => p.id === this.cartItem.productId)
-    this.categories = this.categoryService.getCategories()
   }
 
   public onSubmit() {
     if (this.updateForm.valid) {
       if (this.updateForm.value.quantity <= this.product.inventory) {
-        let newCartItem: CartItem = { ...this.cartItem }
-        let category : ProductCategory = this.categories.find((p)=> p.id === this.product.categoryId)
+        let newCartItem: CartItemStoreModel = { ...this.cartItem }
         newCartItem.quantity = this.updateForm.value.quantity
-        let discountPrice = this.product.cost * (this.product.discount/100)
-        let productPriceAfterDiscount = this.product.cost - discountPrice
-        let totcost = (productPriceAfterDiscount* this.updateForm.value.quantity * (category.gst / 100)) + productPriceAfterDiscount * this.updateForm.value.quantity
-        newCartItem.totalcost = totcost
         this.cartService.updateCartItem(newCartItem)
         this.dialogRef.close()
         this.snackbar.showSnackbar("successfully updated the item",'Success')

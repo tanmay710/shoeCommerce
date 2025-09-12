@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { CartModel } from '../../core/models/cart/cart.model';
 import { CartService } from '../../core/services/cart/cart.service';
 import { UserModel } from '../../core/models/user/user.model';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-import { CartItem } from '../../core/models/cart/cart.item.model';
+import { CartItemShowModel } from '../../core/models/cart/cart.item.model';
 import { MatButtonModule } from '@angular/material/button';
 import { TitleCasePipe } from '@angular/common';
 import { Order } from '../../core/models/order/order.model';
@@ -16,9 +15,10 @@ import { SnackbarService } from '../../shared/services/snackbar/snackbar.service
 import { UserService } from '../../core/services/user/user.service';
 import { ProductModel } from '../../core/models/product/product.model';
 import { ProductCategory } from '../../core/models/product-category/product.category.model';
-import { CartItemShowModel } from '../../core/models/cart/cart.item.show.model';
 import { CategoriesService } from '../../core/services/categories/categories.service';
 import { ConfirmationDialogComponent } from '../../shared/components/confirmation-dialog/confirmation-dialog.component';
+import { CartStoreModel } from '../../core/models/cart/cart.store.model';
+import { CartShowModel } from '../../core/models/cart/cart.model';
 
 @Component({
   selector: 'app-checkout',
@@ -26,14 +26,15 @@ import { ConfirmationDialogComponent } from '../../shared/components/confirmatio
   templateUrl: './cart.component.html',
   styleUrl: './cart.component.scss'
 })
-export class CartComponent implements OnInit {
-  public userCart: CartModel
+export class CartComponent {
+  public userCart: CartStoreModel
+  public userCartShow: CartShowModel
   public showUserCart: CartItemShowModel[]
-  public user: UserModel
   public currentUser: UserModel
-  public cartDataSource: MatTableDataSource<CartItem>
+  public cartDataSource: MatTableDataSource<CartItemShowModel>
   public categories: ProductCategory[]
-  public displayedColumns: string[] = ['name', 'cost', 'quantity', 'totalcost','discount','discountPrice','afterDiscount', 'categorygst', 'gst', 'totalcostgst', 'changequantity', 'remove']
+  public products: ProductModel[]
+  public displayedColumns: string[] = ['name', 'cost', 'quantity', 'totalcost', 'discount', 'discountPrice', 'afterDiscount', 'categorygst', 'gst', 'totalcostgst', 'changequantity', 'remove']
 
   constructor(private cartService: CartService,
     private productService: ProductService,
@@ -46,72 +47,83 @@ export class CartComponent implements OnInit {
 
   ngOnInit(): void {
     this.userCart = this.cartService.getUserCart()
+    this.currentUser = this.userService.getCurrentUser()
     this.categories = this.categoryService.getCategories()
-    this.showUserCart = this.userCart?.items.map((p) => {
-      let prod: ProductModel[] = this.productService.getShoes()
-      let prod1: ProductModel = prod.find((exprod) => exprod.id === p.productId)
-      let category: ProductCategory = this.categories.find((c) => c.id === prod1.categoryId)
+    this.products = this.productService.getShoes()
+    this.showUserCart = this.userCart?.items.map((item) => {
+      let product: ProductModel = this.products.find((prod) => prod.id === item.productId)
+      let category: ProductCategory = this.categories.find((cat) => cat.id === product.categoryId)
+      let basePrice = product.cost * item.quantity
+      let discountPrice = (product.cost * item.quantity) * (product.discount / 100)
+      let priceAfterDiscount = basePrice - discountPrice
+      let gstPrice = priceAfterDiscount * (category.gst / 100)
+      let priceAfterGst = priceAfterDiscount + gstPrice
       return {
-        productId: p.productId,
+        productId: product.id,
+        productName: product.name,
+        productCost: product.cost,
+        productDiscount: product.discount,
         gst: category.gst,
-        productName: prod1.name,
-        cost: prod1.cost,
-        quantity: p.quantity,
-        totalcost: p.totalcost
+        quantity: item.quantity,
+        totalcost: priceAfterGst
       }
     })
-    this.cartDataSource = new MatTableDataSource(this.userCart.items)
-    this.user = this.userService.getCurrentUser()
-
+    let totAmount = this.showUserCart.reduce((sum, item) => sum + item.totalcost, 0)
+    this.userCartShow = {
+      userId: this.userCart.userId,
+      items: this.showUserCart,
+      totalAmount: totAmount
+    }
+    this.cartDataSource = new MatTableDataSource(this.showUserCart)
   }
 
   public onConfirm() {
-    let allProds: ProductModel[] = this.productService.getShoes()
-    let stillInInventory: boolean = true
-    this.userCart.items.forEach((item) => {
-      let prod = allProds.find((p) => p.id === item.productId)
-      if (prod && item.quantity > prod.inventory) {
-        stillInInventory = false
-        this.snackbar.showSnackbar(`Our inventory does not have this much quantity for ${prod.name}(${prod.inventory})`, 'Error')
-        return
-      }
-    })
-    if (stillInInventory) {
-      const dialogRef = this.dialog.open(ConfirmationDialogComponent, { data: { message: 'Do you confirm your order' } })
-      dialogRef.afterClosed().subscribe((result) => {
-        if (result) {
-          let allOrders = this.orderService.getAllOrders()
-          let lastOrder = allOrders[allOrders.length - 1]
-          let lastOrderIndex: number
-          let orderDate = new Date()
-          if (lastOrder) {
-            lastOrderIndex = lastOrder.orderId
-          }
-          else {
-            lastOrderIndex = 0
-          }
-          let order: Order = {
-            userId: this.user.id,
-            cart: this.userCart,
-            orderId: lastOrderIndex + 1,
-            orderDate: orderDate.toLocaleString()
-          }
-          let allShoes: ProductModel[] = this.productService.getShoes()
-          for (let i = 0; i < this.userCart.items.length; i++) {
-            let shoe: ProductModel = allShoes.find((p) => p.id === this.userCart.items[i].productId)
-            shoe.inventory = shoe.inventory - this.userCart.items[i].quantity
-            this.productService.updateShoe(shoe)
-          }
-          this.orderService.addOrder(order)
-          this.cartService.removeCart()
-          this.snackbar.showSnackbar("Successfully Ordered", 'Success')
-          this.router.navigate(['/orders'])
-        }
-        else {
+      let stillInInventory: boolean = true
+      this.userCart.items.forEach((item) => {
+        let prod = this.products.find((p) => p.id === item.productId)
+        if (prod && item.quantity > prod.inventory) {
+          stillInInventory = false
+          this.snackbar.showSnackbar(`Our inventory does not have this much quantity for ${prod.name}(${prod.inventory})`, 'Error')
           return
         }
       })
-    }
+      if (stillInInventory) {
+        const dialogRef = this.dialog.open(ConfirmationDialogComponent, { data: { message: 'Do you confirm your order' } })
+        dialogRef.afterClosed().subscribe((result) => {
+          if (result) {
+            let allOrders = this.orderService.getAllOrders()
+            let lastOrder = allOrders[allOrders.length - 1]
+            let lastOrderIndex: number
+            let orderDate = new Date()
+            if (lastOrder) {
+              lastOrderIndex = lastOrder.orderId
+            }
+            else {
+              lastOrderIndex = 0
+            }
+            let order: Order = {
+              orderId: lastOrderIndex + 1,
+              userId: this.currentUser.id,
+              items: this.showUserCart,
+              orderDate: orderDate.toISOString(),
+              totalAmount: this.userCartShow.totalAmount
+            }
+            let allShoes: ProductModel[] = this.productService.getShoes()
+            for (let i = 0; i < this.userCart.items.length; i++) {
+              let shoe: ProductModel = allShoes.find((p) => p.id === this.userCart.items[i].productId)
+              shoe.inventory = shoe.inventory - this.userCart.items[i].quantity
+              this.productService.updateShoe(shoe)
+            }
+            this.orderService.addOrder(order)
+            this.cartService.removeCart()
+            this.snackbar.showSnackbar("Successfully Ordered", 'Success')
+            this.router.navigate(['/orders'])
+          }
+          else {
+            return
+          }
+        })
+      }
 
   }
 
@@ -119,55 +131,76 @@ export class CartComponent implements OnInit {
     this.router.navigate(['/shoelist'])
   }
 
-  public changeQuantity(shoe: CartItem) {
-    console.log(shoe);
-
+  public changeQuantity(shoe: CartItemShowModel) {
     const dialogRef = this.dialog.open(CartUpdateDialogComponent, { data: { cartItem: shoe } })
     dialogRef.afterClosed().subscribe(result => {
       this.userCart = this.cartService.getUserCart()
-      this.showUserCart = this.userCart?.items.map((p) => {
-        let prod: ProductModel[] = this.productService.getShoes()
-        let prod1: ProductModel = prod.find((exprod) => exprod.id === p.productId)
-        let category: ProductCategory = this.categories.find((c) => c.id === prod1.categoryId)
+      this.showUserCart = this.userCart?.items.map((item) => {
+        let product: ProductModel = this.products.find((prod) => prod.id === item.productId)
+        let category: ProductCategory = this.categories.find((cat) => cat.id === product.categoryId)
+        let basePrice = product.cost * item.quantity
+        let discountPrice = (product.cost * item.quantity) * (product.discount / 100)
+        let priceAfterDiscount = basePrice - discountPrice
+        let gstPrice = priceAfterDiscount * (category.gst / 100)
+        let priceAfterGst = priceAfterDiscount + gstPrice
         return {
-          productId: p.productId,
+          productId: product.id,
+          productName: product.name,
+          productCost: product.cost,
+          productDiscount: product.discount,
           gst: category.gst,
-          productName: prod1.name,
-          cost: prod1.cost,
-          quantity: p.quantity,
-          totalcost: p.totalcost
+          quantity: item.quantity,
+          totalcost: priceAfterGst
         }
       })
-      this.cartDataSource.data = this.userCart.items
+      let totAmount = this.showUserCart.reduce((sum, item) => sum + item.totalcost, 0)
+      this.userCartShow = {
+        userId: this.userCart.userId,
+        items: this.showUserCart,
+        totalAmount: totAmount
+      }
+      this.cartDataSource.data = this.showUserCart
     })
   }
 
-  public removeItem(product: CartItem) {
+  public removeItem(product: CartItemShowModel) {
     const dialogRef = this.dialog.open(ConfirmationDialogComponent, { data: { message: 'Are you sure you want to remove this item?' } })
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
         this.cartService.removeCartItem(product)
         this.userCart = this.cartService.getUserCart()
-        this.showUserCart = this.userCart?.items.map((p) => {
-          let prod: ProductModel[] = this.productService.getShoes()
-          let prod1: ProductModel = prod.find((exprod) => exprod.id === p.productId)
-          let category: ProductCategory = this.categories.find((c) => c.id === prod1.categoryId)
+        this.showUserCart = this.userCart?.items.map((item) => {
+          let product: ProductModel = this.products.find((prod) => prod.id === item.productId)
+          let category: ProductCategory = this.categories.find((cat) => cat.id === product.categoryId)
+          let basePrice = product.cost * item.quantity
+          let discountPrice = (product.cost * item.quantity) * (product.discount / 100)
+          let priceAfterDiscount = basePrice - discountPrice
+          let gstPrice = priceAfterDiscount * (category.gst / 100)
+          let priceAfterGst = priceAfterDiscount + gstPrice
           return {
-            productId: p.productId,
+            productId: product.id,
+            productName: product.name,
+            productCost: product.cost,
+            productDiscount: product.discount,
             gst: category.gst,
-            productName: prod1.name,
-            cost: prod1.cost,
-            quantity: p.quantity,
-            totalcost: p.totalcost
+            quantity: item.quantity,
+            totalcost: priceAfterGst
           }
         })
-        this.cartDataSource.data = this.userCart.items
+        let totAmount = this.showUserCart.reduce((sum, item) => sum + item.totalcost, 0)
+        this.userCartShow = {
+          userId: this.userCart.userId,
+          items: this.showUserCart,
+          totalAmount: totAmount
+        }
+        this.cartDataSource.data = this.showUserCart
         this.snackbar.showSuccess("Removed item")
       }
-      else{
+      else {
         return
       }
     })
-
   }
+
 }
+

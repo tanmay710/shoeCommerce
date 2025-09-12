@@ -1,9 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ProductModel } from '../../models/product/product.model';
-import { CartService } from '../cart/cart.service';
-import { CartModel } from '../../models/cart/cart.model';
-import { CategoriesService } from '../categories/categories.service';
-import { ProductCategory } from '../../models/product-category/product.category.model';
+
 
 
 @Injectable({
@@ -97,10 +94,8 @@ export class ProductService {
   public updateShoe(product : ProductModel){
     let shoes : ProductModel[] = JSON.parse(localStorage.getItem('shoes'))
     let updateShoeIndex = shoes.findIndex((p)=> p.id === product.id)
-    if(updateShoeIndex !== -1){
       shoes[updateShoeIndex] ={...product}
       localStorage.setItem('shoes',JSON.stringify(shoes))
-    }
   }
 
   
